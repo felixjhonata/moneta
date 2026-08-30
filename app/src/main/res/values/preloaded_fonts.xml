@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/fraunces_bold</item>
+        <item>@font/fraunces_medium</item>
+        <item>@font/outfit</item>
+        <item>@font/outfit_bold</item>
+        <item>@font/outfit_medium</item>
+    </array>
+</resources>
