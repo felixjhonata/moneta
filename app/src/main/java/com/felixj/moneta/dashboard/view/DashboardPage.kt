@@ -61,9 +61,8 @@ private fun DashboardPageContent(
         bottomBar = { BottomNavigationBar() }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = innerPadding,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
