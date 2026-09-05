@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.felixj.moneta.R
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.dashboard.model.DashboardPageUiState
+import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
@@ -76,7 +77,7 @@ private fun DashboardPageContent(
 
             item("total_balance") {
                 TotalBalanceCard(
-                    uiState.currentBalance,
+                    uiState.currentBalance.asString(),
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth()
@@ -85,8 +86,8 @@ private fun DashboardPageContent(
 
             item("earned_and_spent") {
                 EarnedAndSpentCard(
-                    uiState.income,
-                    uiState.expense,
+                    uiState.income.asString(),
+                    uiState.expense.asString(),
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth()
@@ -246,34 +247,33 @@ private fun TotalBalanceCard(
     }
 }
 
-@Composable
 private fun dummyUiState() = DashboardPageUiState(
-    stringResource(R.string.rp_value, "4.850.000"),
-    stringResource(R.string.rp_value, "1.500.000"),
-    stringResource(R.string.rp_value, "800.000"),
+    UiText.StringResource(R.string.rp_value, "4.850.000"),
+    UiText.StringResource(R.string.rp_value, "1.500.000"),
+    UiText.StringResource(R.string.rp_value, "800.000"),
     listOf(
         ActivityItemUiModel(
-            "Electricity Bills",
-            "12 April 2026",
-            "-Rp 1.200.000",
+            UiText.DynamicString("Electricity Bills"),
+            UiText.DynamicString("12 April 2026"),
+            UiText.DynamicString("-Rp 1.200.000"),
             true
         ),
         ActivityItemUiModel(
-            "Water Bills",
-            "12 April 2026",
-            "-Rp 800.000",
+            UiText.DynamicString("Water Bills"),
+            UiText.DynamicString("12 April 2026"),
+            UiText.DynamicString("-Rp 800.000"),
             true
         ),
         ActivityItemUiModel(
-            "Salary",
-            "10 April 2026",
-            "+Rp 2.000.000",
+            UiText.DynamicString("Salary"),
+            UiText.DynamicString("10 April 2026"),
+            UiText.DynamicString("+Rp 2.000.000"),
             false
         ),
         ActivityItemUiModel(
-            "Investment Profit",
-            "10 April 2026",
-            "+Rp 600.000",
+            UiText.DynamicString("Investment Profit"),
+            UiText.DynamicString("10 April 2026"),
+            UiText.DynamicString("+Rp 600.000"),
             false
         )
     )

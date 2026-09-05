@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.felixj.moneta.history.model.HistoryListItemUiModel
 import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.shared.model.ActivityItemUiModel
+import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
@@ -34,34 +35,34 @@ private fun dummyUiState() = HistoryPageUiState(
         HistoryListItemUiModel.Date("Today"),
         HistoryListItemUiModel.ActivityItem(
             ActivityItemUiModel(
-                "Electricity Bills",
-                "4 September 2026",
-                "-Rp 1.200.000",
+                UiText.DynamicString("Electricity Bills"),
+                UiText.DynamicString("4 September 2026"),
+                UiText.DynamicString("-Rp 1.200.000"),
                 true,
             )
         ),
         HistoryListItemUiModel.ActivityItem(
             ActivityItemUiModel(
-                "Water Bills",
-                "4 September 2026",
-                "-Rp 800.000",
+                UiText.DynamicString("Water Bills"),
+                UiText.DynamicString("4 September 2026"),
+                UiText.DynamicString("-Rp 800.000"),
                 true,
             )
         ),
         HistoryListItemUiModel.ActivityItem(
             ActivityItemUiModel(
-                "Salary",
-                "4 September 2026",
-                "+Rp 13.000.000",
+                UiText.DynamicString("Salary"),
+                UiText.DynamicString("4 September 2026"),
+                UiText.DynamicString("+Rp 13.000.000"),
                 false,
             )
         ),
         HistoryListItemUiModel.Date("Yesterday"),
         HistoryListItemUiModel.ActivityItem(
             ActivityItemUiModel(
-                "Phone Bills",
-                "3 September 2026",
-                "-Rp 100.000",
+                UiText.DynamicString("Phone Bills"),
+                UiText.DynamicString("3 September 2026"),
+                UiText.DynamicString("-Rp 100.000"),
                 true
             )
         )

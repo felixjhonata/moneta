@@ -50,18 +50,18 @@ fun ActivityItem(
 
         Column(Modifier.weight(1f)) {
             Text(
-                uiModel.activityLabel,
+                uiModel.activityLabel.asString(),
                 style = MaterialTheme.typography.titleSmall
             )
             Text(
-                uiModel.activityDate,
+                uiModel.activityDate.asString(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
         }
 
         Text(
-            uiModel.amount,
+            uiModel.amount.asString(),
             style = MaterialTheme.typography.titleMedium,
             color = if (uiModel.isExpense) MaterialTheme.colorScheme.error
             else MaterialTheme.colorScheme.primary
