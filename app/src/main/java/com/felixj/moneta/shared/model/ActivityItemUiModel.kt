@@ -1,4 +1,4 @@
-package com.felixj.moneta.dashboard.model
+package com.felixj.moneta.shared.model
 
 data class ActivityItemUiModel(
     val activityLabel: String,

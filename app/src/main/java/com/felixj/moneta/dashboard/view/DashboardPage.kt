@@ -17,8 +17,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,8 +29,11 @@ import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.felixj.moneta.R
-import com.felixj.moneta.dashboard.model.ActivityItemUiModel
+import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.dashboard.model.DashboardPageUiState
+import com.felixj.moneta.shared.view.ActivityItem
+import com.felixj.moneta.shared.view.BottomNavigationBar
+import com.felixj.moneta.shared.view.BottomNavigationBarDestination
 import com.felixj.moneta.ui.theme.MonetaTheme
 
 @Composable
@@ -58,7 +59,7 @@ private fun DashboardPageContent(
                 )
             }
         },
-        bottomBar = { BottomNavigationBar() }
+        bottomBar = { BottomNavigationBar(BottomNavigationBarDestination.Dashboard) }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -242,47 +243,6 @@ private fun TotalBalanceCard(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-    }
-}
-
-@Composable
-private fun BottomNavigationBar(modifier: Modifier = Modifier) {
-    NavigationBar(modifier) {
-        NavigationBarItem(
-            selected = true,
-            onClick = {},
-            icon = {
-                Icon(
-                    painterResource(R.drawable.baseline_home_filled_24),
-                    "home"
-                )
-            },
-            label = { Text(stringResource(R.string.dashboard)) }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = {
-                Icon(
-                    painterResource(R.drawable.baseline_history_24),
-                    "history"
-                )
-            },
-            label = { Text(stringResource(R.string.history)) }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = {
-                Icon(
-                    painterResource(R.drawable.baseline_settings_24),
-                    "settings"
-                )
-            },
-            label = { Text(stringResource(R.string.settings)) }
-        )
     }
 }
 
