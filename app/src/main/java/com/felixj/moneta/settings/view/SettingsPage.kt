@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,22 +28,51 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
+import com.felixj.moneta.settings.model.SettingsPageUiEvent
+import com.felixj.moneta.settings.model.SettingsPageUserEvent
+import com.felixj.moneta.settings.viewmodel.SettingsPageViewModel
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
 import com.felixj.moneta.shared.view.SeeMoreButton
 import com.felixj.moneta.ui.theme.MonetaTheme
 
 @Composable
-fun SettingsPage(modifier: Modifier = Modifier) {
-    SettingsPageContent(modifier)
+fun SettingsPage(
+    backStack: NavBackStack<NavKey>,
+    modifier: Modifier = Modifier,
+    viewModel: SettingsPageViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { uiEvent ->
+            when (uiEvent) {
+                is SettingsPageUiEvent.NavigateTo -> {
+                    if (uiEvent.clearBackStack) backStack.clear()
+                    backStack.add(uiEvent.destination)
+                }
+            }
+        }
+    }
+
+    SettingsPageContent(viewModel::onUserEvent, modifier)
 }
 
 @Composable
-private fun SettingsPageContent(modifier: Modifier = Modifier) {
+private fun SettingsPageContent(
+    onUserEvent: (SettingsPageUserEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         modifier = modifier,
-        bottomBar = { BottomNavigationBar(BottomNavigationBarDestination.Settings) }
+        bottomBar = {
+            BottomNavigationBar(
+                BottomNavigationBarDestination.Settings,
+                { onUserEvent(SettingsPageUserEvent.BottomNavigationDestinationSelected(it)) }
+            )
+        }
     ) { innerPadding ->
         LazyColumn(
             contentPadding = innerPadding,
@@ -211,7 +241,7 @@ private fun CurrencyDropdown(modifier: Modifier = Modifier) {
         }
 
         DropdownMenu(
-            true,
+            false,
             {}
         ) {
             DropdownMenuItem({ Text("USD") }, {})
@@ -227,7 +257,7 @@ private fun CurrencyDropdown(modifier: Modifier = Modifier) {
 @Composable
 private fun SettingsPageContentPreview() {
     MonetaTheme {
-        SettingsPageContent()
+        SettingsPageContent({})
     }
 }
 
@@ -239,6 +269,6 @@ private fun SettingsPageContentPreview() {
 @Composable
 private fun SettingsPageContentDarkModePreview() {
     MonetaTheme {
-        SettingsPageContent()
+        SettingsPageContent({})
     }
 }

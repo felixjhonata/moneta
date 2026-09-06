@@ -11,15 +11,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
 import com.felixj.moneta.history.model.HistoryListItemUiModel
+import com.felixj.moneta.history.model.HistoryPageUiEvent
 import com.felixj.moneta.history.model.HistoryPageUiState
+import com.felixj.moneta.history.model.HistoryPageUserEvent
+import com.felixj.moneta.history.viewmodel.HistoryPageViewModel
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.view.ActivityItem
@@ -28,9 +35,25 @@ import com.felixj.moneta.shared.view.BottomNavigationBarDestination
 import com.felixj.moneta.ui.theme.MonetaTheme
 
 @Composable
-fun HistoryPage(modifier: Modifier = Modifier) {
+fun HistoryPage(
+    backStack: NavBackStack<NavKey>,
+    modifier: Modifier = Modifier,
+    viewModel: HistoryPageViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { uiEvent ->
+            when (uiEvent) {
+                is HistoryPageUiEvent.NavigateTo -> {
+                    if (uiEvent.clearBackStack) backStack.clear()
+                    backStack.add(uiEvent.destination)
+                }
+            }
+        }
+    }
+
     HistoryPageContent(
         dummyUiState(),
+        viewModel::onUserEvent,
         modifier
     )
 }
@@ -77,6 +100,7 @@ private fun dummyUiState() = HistoryPageUiState(
 @Composable
 private fun HistoryPageContent(
     uiState: HistoryPageUiState,
+    onUserEvent: (HistoryPageUserEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -89,7 +113,12 @@ private fun HistoryPageContent(
                 )
             }
         },
-        bottomBar = { BottomNavigationBar(BottomNavigationBarDestination.History) }
+        bottomBar = {
+            BottomNavigationBar(
+                BottomNavigationBarDestination.History,
+                { onUserEvent(HistoryPageUserEvent.BottomNavigationDestinationSelected(it)) }
+            )
+        }
     ) { innerPadding ->
         LazyColumn(
             contentPadding = innerPadding,
@@ -134,7 +163,7 @@ private fun HistoryPageContent(
 @Composable
 private fun HistoryPagePreview() {
     MonetaTheme {
-        HistoryPageContent(dummyUiState())
+        HistoryPageContent(dummyUiState(), {})
     }
 }
 
@@ -146,6 +175,6 @@ private fun HistoryPagePreview() {
 @Composable
 private fun HistoryPagePreviewDarkMode() {
     MonetaTheme {
-        HistoryPageContent(dummyUiState())
+        HistoryPageContent(dummyUiState(), {})
     }
 }

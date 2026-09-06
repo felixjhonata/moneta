@@ -19,12 +19,13 @@ enum class BottomNavigationBarDestination {
 @Composable
 fun BottomNavigationBar(
     currentPage: BottomNavigationBarDestination,
+    navigateTo: (BottomNavigationBarDestination) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavigationBar(modifier) {
         NavigationBarItem(
             selected = currentPage == BottomNavigationBarDestination.Dashboard,
-            onClick = {},
+            onClick = { navigateTo(BottomNavigationBarDestination.Dashboard) },
             icon = {
                 Icon(
                     painterResource(R.drawable.baseline_home_filled_24),
@@ -36,7 +37,7 @@ fun BottomNavigationBar(
 
         NavigationBarItem(
             selected = currentPage == BottomNavigationBarDestination.History,
-            onClick = {},
+            onClick = { navigateTo(BottomNavigationBarDestination.History) },
             icon = {
                 Icon(
                     painterResource(R.drawable.baseline_history_24),
@@ -48,7 +49,7 @@ fun BottomNavigationBar(
 
         NavigationBarItem(
             selected = currentPage == BottomNavigationBarDestination.Settings,
-            onClick = {},
+            onClick = { navigateTo(BottomNavigationBarDestination.Settings) },
             icon = {
                 Icon(
                     painterResource(R.drawable.baseline_settings_24),
@@ -64,6 +65,6 @@ fun BottomNavigationBar(
 @Composable
 private fun BottomNavigationBarPreview() {
     MonetaTheme {
-        BottomNavigationBar(BottomNavigationBarDestination.Dashboard)
+        BottomNavigationBar(BottomNavigationBarDestination.Dashboard, {})
     }
 }

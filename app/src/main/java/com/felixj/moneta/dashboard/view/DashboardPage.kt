@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -25,8 +26,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
+import com.felixj.moneta.dashboard.model.DashboardPageUiEvent
 import com.felixj.moneta.dashboard.model.DashboardPageUiState
+import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
+import com.felixj.moneta.dashboard.viewmodel.DashboardPageViewModel
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.view.ActivityItem
@@ -36,9 +43,25 @@ import com.felixj.moneta.shared.view.SeeMoreButton
 import com.felixj.moneta.ui.theme.MonetaTheme
 
 @Composable
-fun DashboardPage(modifier: Modifier = Modifier) {
+fun DashboardPage(
+    backStack: NavBackStack<NavKey>,
+    modifier: Modifier = Modifier,
+    viewModel: DashboardPageViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { uiEvent ->
+            when (uiEvent) {
+                is DashboardPageUiEvent.NavigateTo -> {
+                    if (uiEvent.clearBackStack) backStack.clear()
+                    backStack.add(uiEvent.destination)
+                }
+            }
+        }
+    }
+
     DashboardPageContent(
         dummyUiState(),
+        viewModel::onUserEvent,
         modifier
     )
 }
@@ -46,6 +69,7 @@ fun DashboardPage(modifier: Modifier = Modifier) {
 @Composable
 private fun DashboardPageContent(
     uiState: DashboardPageUiState,
+    onUserEvent: (DashboardPageUserEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -58,7 +82,12 @@ private fun DashboardPageContent(
                 )
             }
         },
-        bottomBar = { BottomNavigationBar(BottomNavigationBarDestination.Dashboard) }
+        bottomBar = {
+            BottomNavigationBar(
+                BottomNavigationBarDestination.Dashboard,
+                { onUserEvent(DashboardPageUserEvent.BottomNavigationDestinationSelected(it)) }
+            )
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -257,7 +286,7 @@ private fun dummyUiState() = DashboardPageUiState(
 @Composable
 private fun DashboardPagePreview() {
     MonetaTheme {
-        DashboardPageContent(dummyUiState(), Modifier.fillMaxSize())
+        DashboardPageContent(dummyUiState(), {}, Modifier.fillMaxSize())
     }
 }
 
@@ -269,6 +298,6 @@ private fun DashboardPagePreview() {
 @Composable
 private fun DashboardPagePreviewDarkMode() {
     MonetaTheme {
-        DashboardPageContent(dummyUiState(), Modifier.fillMaxSize())
+        DashboardPageContent(dummyUiState(), {}, Modifier.fillMaxSize())
     }
 }

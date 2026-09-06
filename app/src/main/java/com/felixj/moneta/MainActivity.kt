@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val backStack = rememberNavBackStack()
+            val backStack = rememberNavBackStack(MonetaRoute.Dashboard)
 
             MonetaTheme {
                 NavDisplay(
@@ -34,15 +34,15 @@ class MainActivity : ComponentActivity() {
                     onBack = { backStack.removeLastOrNull() },
                     entryProvider = entryProvider {
                         entry<MonetaRoute.Dashboard> {
-                            DashboardPage()
+                            DashboardPage(backStack)
                         }
 
                         entry<MonetaRoute.History> {
-                            HistoryPage()
+                            HistoryPage(backStack)
                         }
 
                         entry<MonetaRoute.Settings> {
-                            SettingsPage()
+                            SettingsPage(backStack)
                         }
                     }
                 )
