@@ -1,6 +1,5 @@
 package com.felixj.moneta.dashboard.view
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -22,19 +20,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.felixj.moneta.R
-import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.dashboard.model.DashboardPageUiState
+import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
+import com.felixj.moneta.shared.view.SeeMoreButton
 import com.felixj.moneta.ui.theme.MonetaTheme
 
 @Composable
@@ -99,27 +97,6 @@ private fun DashboardPageContent(
     }
 }
 
-@Composable
-private fun SeeMoreButton(modifier: Modifier = Modifier) {
-    Box(modifier) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                stringResource(R.string.see_more),
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-
-            Icon(
-                painterResource(R.drawable.baseline_arrow_forward_24),
-                "arrow_forward",
-                tint = MaterialTheme.colorScheme.secondary
-            )
-        }
-    }
-}
-
 fun LazyListScope.recentActivities(
     activityItems: List<ActivityItemUiModel>
 ) {
@@ -159,12 +136,7 @@ fun LazyListScope.recentActivities(
 
         if (activityItems.size > 3) {
             item {
-                SeeMoreButton(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {}
-                        .padding(vertical = 4.dp, horizontal = 12.dp)
-                )
+                SeeMoreButton()
             }
         }
     }

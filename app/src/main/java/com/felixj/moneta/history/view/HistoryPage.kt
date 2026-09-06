@@ -10,9 +10,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.felixj.moneta.R
 import com.felixj.moneta.history.model.HistoryListItemUiModel
 import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.shared.model.ActivityItemUiModel
@@ -84,7 +86,7 @@ private fun HistoryPageContent(
         ) {
             item("page_title") {
                 Text(
-                    "History",
+                    stringResource(R.string.history),
                     modifier = Modifier.padding(horizontal = 24.dp),
                     style = MaterialTheme.typography.headlineLarge
                 )
