@@ -30,9 +30,12 @@ sealed interface UiText {
         }
     }
 
+    data object Empty: UiText
+
     @Composable
     fun asString() = when (this) {
         is DynamicString -> value
         is StringResource -> stringResource(resourceId, *formatArgs)
+        is Empty -> ""
     }
 }

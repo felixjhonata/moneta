@@ -38,7 +38,7 @@ import com.felixj.moneta.ui.theme.MonetaTheme
 @Composable
 fun DashboardPage(modifier: Modifier = Modifier) {
     DashboardPageContent(
-        dummyUiState(), // TODO: Move to viewmodel
+        dummyUiState(),
         modifier
     )
 }
@@ -92,13 +92,14 @@ private fun DashboardPageContent(
                 )
             }
 
-            recentActivities(uiState.recentActivities)
+            recentActivities(uiState.recentActivities, uiState.showSeeMoreButton)
         }
     }
 }
 
 fun LazyListScope.recentActivities(
-    activityItems: List<ActivityItemUiModel>
+    activityItems: List<ActivityItemUiModel>,
+    showSeeMoreButton: Boolean
 ) {
     item {
         Column(
@@ -128,7 +129,7 @@ fun LazyListScope.recentActivities(
             }
         }
     } else {
-        items(activityItems.take(3)) { item ->
+        items(activityItems) { item ->
             ActivityItem(
                 item,
                 modifier = Modifier
@@ -137,7 +138,7 @@ fun LazyListScope.recentActivities(
             )
         }
 
-        if (activityItems.size > 3) {
+        if (showSeeMoreButton) {
             item {
                 SeeMoreButton()
             }
@@ -244,14 +245,9 @@ private fun dummyUiState() = DashboardPageUiState(
             UiText.DynamicString("10 April 2026"),
             UiText.DynamicString("+Rp 2.000.000"),
             false
-        ),
-        ActivityItemUiModel(
-            UiText.DynamicString("Investment Profit"),
-            UiText.DynamicString("10 April 2026"),
-            UiText.DynamicString("+Rp 600.000"),
-            false
         )
-    )
+    ),
+    true
 )
 
 @Preview(
