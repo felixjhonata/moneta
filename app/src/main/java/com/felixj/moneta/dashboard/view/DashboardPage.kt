@@ -106,7 +106,10 @@ fun LazyListScope.recentActivities(
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth()
         ) {
-            Text(stringResource(R.string.recent_activities))
+            Text(
+                stringResource(R.string.recent_activities),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 
