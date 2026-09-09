@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
@@ -35,7 +37,6 @@ import com.felixj.moneta.dashboard.model.DashboardPageUiState
 import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
 import com.felixj.moneta.dashboard.viewmodel.DashboardPageViewModel
 import com.felixj.moneta.shared.model.ActivityItemUiModel
-import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
@@ -48,6 +49,8 @@ fun DashboardPage(
     modifier: Modifier = Modifier,
     viewModel: DashboardPageViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { uiEvent ->
             when (uiEvent) {
@@ -60,7 +63,7 @@ fun DashboardPage(
     }
 
     DashboardPageContent(
-        dummyUiState(),
+        uiState,
         viewModel::onUserEvent,
         modifier
     )
@@ -252,33 +255,6 @@ private fun TotalBalanceCard(
     }
 }
 
-private fun dummyUiState() = DashboardPageUiState(
-    UiText.StringResource(R.string.rp_value, "4.850.000"),
-    UiText.StringResource(R.string.rp_value, "1.500.000"),
-    UiText.StringResource(R.string.rp_value, "800.000"),
-    listOf(
-        ActivityItemUiModel(
-            UiText.DynamicString("Electricity Bills"),
-            UiText.DynamicString("12 April 2026"),
-            UiText.DynamicString("-Rp 1.200.000"),
-            true
-        ),
-        ActivityItemUiModel(
-            UiText.DynamicString("Water Bills"),
-            UiText.DynamicString("12 April 2026"),
-            UiText.DynamicString("-Rp 800.000"),
-            true
-        ),
-        ActivityItemUiModel(
-            UiText.DynamicString("Salary"),
-            UiText.DynamicString("10 April 2026"),
-            UiText.DynamicString("+Rp 2.000.000"),
-            false
-        )
-    ),
-    true
-)
-
 @Preview(
     name = "Regular",
     showSystemUi = true
@@ -286,7 +262,7 @@ private fun dummyUiState() = DashboardPageUiState(
 @Composable
 private fun DashboardPagePreview() {
     MonetaTheme {
-        DashboardPageContent(dummyUiState(), {}, Modifier.fillMaxSize())
+        DashboardPageContent(DashboardPageViewModel.dummyUiState(), {}, Modifier.fillMaxSize())
     }
 }
 
@@ -298,6 +274,6 @@ private fun DashboardPagePreview() {
 @Composable
 private fun DashboardPagePreviewDarkMode() {
     MonetaTheme {
-        DashboardPageContent(dummyUiState(), {}, Modifier.fillMaxSize())
+        DashboardPageContent(DashboardPageViewModel.dummyUiState(), {}, Modifier.fillMaxSize())
     }
 }

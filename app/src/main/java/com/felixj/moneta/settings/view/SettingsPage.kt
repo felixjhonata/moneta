@@ -20,6 +20,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,10 +30,12 @@ import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
 import com.felixj.moneta.settings.model.SettingsPageUiEvent
+import com.felixj.moneta.settings.model.SettingsPageUiState
 import com.felixj.moneta.settings.model.SettingsPageUserEvent
 import com.felixj.moneta.settings.viewmodel.SettingsPageViewModel
 import com.felixj.moneta.shared.view.BottomNavigationBar
@@ -46,6 +49,8 @@ fun SettingsPage(
     modifier: Modifier = Modifier,
     viewModel: SettingsPageViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { uiEvent ->
             when (uiEvent) {
@@ -57,11 +62,16 @@ fun SettingsPage(
         }
     }
 
-    SettingsPageContent(viewModel::onUserEvent, modifier)
+    SettingsPageContent(
+        uiState,
+        viewModel::onUserEvent,
+        modifier
+    )
 }
 
 @Composable
 private fun SettingsPageContent(
+    uiState: SettingsPageUiState,
     onUserEvent: (SettingsPageUserEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -88,7 +98,11 @@ private fun SettingsPageContent(
 
             buildCategoriesSection()
 
-            buildPersonalizationSection()
+            buildPersonalizationSection(
+                uiState.isDarkMode,
+                uiState.currency,
+                uiState.currencies
+            )
         }
     }
 }
@@ -180,7 +194,11 @@ private fun CategoryCard(
     }
 }
 
-private fun LazyListScope.buildPersonalizationSection() {
+private fun LazyListScope.buildPersonalizationSection(
+    isDarkMode: Boolean,
+    currency: String,
+    currencies: List<String>
+) {
     item {
         Text(
             stringResource(R.string.personalization),
@@ -200,7 +218,7 @@ private fun LazyListScope.buildPersonalizationSection() {
                 modifier = Modifier.weight(1f)
             )
 
-            CurrencyDropdown()
+            CurrencyDropdown(currency, currencies)
         }
     }
 
@@ -215,13 +233,17 @@ private fun LazyListScope.buildPersonalizationSection() {
                 modifier = Modifier.weight(1f)
             )
 
-            Switch(false, {})
+            Switch(isDarkMode, {})
         }
     }
 }
 
 @Composable
-private fun CurrencyDropdown(modifier: Modifier = Modifier) {
+private fun CurrencyDropdown(
+    currency: String,
+    currencies: List<String>,
+    modifier: Modifier = Modifier
+) {
     Box(modifier) {
         OutlinedCard {
             Row(
@@ -230,7 +252,7 @@ private fun CurrencyDropdown(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "USD",
+                    currency,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Icon(
@@ -244,8 +266,9 @@ private fun CurrencyDropdown(modifier: Modifier = Modifier) {
             false,
             {}
         ) {
-            DropdownMenuItem({ Text("USD") }, {})
-            DropdownMenuItem({ Text("IDR") }, {})
+            currencies.forEach {
+                DropdownMenuItem({ Text(it) }, {})
+            }
         }
     }
 }
@@ -257,7 +280,7 @@ private fun CurrencyDropdown(modifier: Modifier = Modifier) {
 @Composable
 private fun SettingsPageContentPreview() {
     MonetaTheme {
-        SettingsPageContent({})
+        SettingsPageContent(SettingsPageViewModel.dummyUiState(), {})
     }
 }
 
@@ -269,6 +292,6 @@ private fun SettingsPageContentPreview() {
 @Composable
 private fun SettingsPageContentDarkModePreview() {
     MonetaTheme {
-        SettingsPageContent({})
+        SettingsPageContent(SettingsPageViewModel.dummyUiState(true), {})
     }
 }

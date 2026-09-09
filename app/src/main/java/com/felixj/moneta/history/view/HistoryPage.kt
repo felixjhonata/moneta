@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
@@ -27,8 +29,6 @@ import com.felixj.moneta.history.model.HistoryPageUiEvent
 import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.history.viewmodel.HistoryPageViewModel
-import com.felixj.moneta.shared.model.ActivityItemUiModel
-import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
@@ -40,6 +40,8 @@ fun HistoryPage(
     modifier: Modifier = Modifier,
     viewModel: HistoryPageViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { uiEvent ->
             when (uiEvent) {
@@ -52,50 +54,11 @@ fun HistoryPage(
     }
 
     HistoryPageContent(
-        dummyUiState(),
+        uiState,
         viewModel::onUserEvent,
         modifier
     )
 }
-
-private fun dummyUiState() = HistoryPageUiState(
-    listOf(
-        HistoryListItemUiModel.Date("Today"),
-        HistoryListItemUiModel.ActivityItem(
-            ActivityItemUiModel(
-                UiText.DynamicString("Electricity Bills"),
-                UiText.DynamicString("4 September 2026"),
-                UiText.DynamicString("-Rp 1.200.000"),
-                true,
-            )
-        ),
-        HistoryListItemUiModel.ActivityItem(
-            ActivityItemUiModel(
-                UiText.DynamicString("Water Bills"),
-                UiText.DynamicString("4 September 2026"),
-                UiText.DynamicString("-Rp 800.000"),
-                true,
-            )
-        ),
-        HistoryListItemUiModel.ActivityItem(
-            ActivityItemUiModel(
-                UiText.DynamicString("Salary"),
-                UiText.DynamicString("4 September 2026"),
-                UiText.DynamicString("+Rp 13.000.000"),
-                false,
-            )
-        ),
-        HistoryListItemUiModel.Date("Yesterday"),
-        HistoryListItemUiModel.ActivityItem(
-            ActivityItemUiModel(
-                UiText.DynamicString("Phone Bills"),
-                UiText.DynamicString("3 September 2026"),
-                UiText.DynamicString("-Rp 100.000"),
-                true
-            )
-        )
-    )
-)
 
 @Composable
 private fun HistoryPageContent(
@@ -163,7 +126,7 @@ private fun HistoryPageContent(
 @Composable
 private fun HistoryPagePreview() {
     MonetaTheme {
-        HistoryPageContent(dummyUiState(), {})
+        HistoryPageContent(HistoryPageViewModel.dummyUiState(), {})
     }
 }
 
@@ -175,6 +138,6 @@ private fun HistoryPagePreview() {
 @Composable
 private fun HistoryPagePreviewDarkMode() {
     MonetaTheme {
-        HistoryPageContent(dummyUiState(), {})
+        HistoryPageContent(HistoryPageViewModel.dummyUiState(), {})
     }
 }
