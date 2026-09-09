@@ -27,18 +27,21 @@ class DashboardPageViewModel @Inject constructor() : ViewModel() {
             UiText.StringResource(R.string.rp_value, "800.000"),
             listOf(
                 ActivityItemUiModel(
+                    R.drawable.baseline_lightbulb_24,
                     UiText.DynamicString("Electricity Bills"),
                     UiText.DynamicString("12 April 2026"),
                     UiText.DynamicString("-Rp 1.200.000"),
                     true
                 ),
                 ActivityItemUiModel(
+                    R.drawable.baseline_lightbulb_24,
                     UiText.DynamicString("Water Bills"),
                     UiText.DynamicString("12 April 2026"),
                     UiText.DynamicString("-Rp 800.000"),
                     true
                 ),
                 ActivityItemUiModel(
+                    R.drawable.baseline_account_balance_wallet_24,
                     UiText.DynamicString("Salary"),
                     UiText.DynamicString("10 April 2026"),
                     UiText.DynamicString("+Rp 2.000.000"),

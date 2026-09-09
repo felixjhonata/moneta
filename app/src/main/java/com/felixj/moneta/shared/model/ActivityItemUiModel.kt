@@ -1,6 +1,9 @@
 package com.felixj.moneta.shared.model
 
+import androidx.annotation.DrawableRes
+
 data class ActivityItemUiModel(
+    @param:DrawableRes val icon: Int,
     val activityLabel: UiText,
     val activityDate: UiText,
     val amount: UiText,

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
+import com.felixj.moneta.settings.model.CategoryUiModel
 import com.felixj.moneta.settings.model.SettingsPageUiEvent
 import com.felixj.moneta.settings.model.SettingsPageUiState
 import com.felixj.moneta.settings.model.SettingsPageUserEvent
@@ -96,7 +98,7 @@ private fun SettingsPageContent(
                 )
             }
 
-            buildCategoriesSection()
+            buildCategoriesSection(uiState.categories, uiState.showSeeMoreButton)
 
             buildPersonalizationSection(
                 uiState.isDarkMode,
@@ -107,7 +109,10 @@ private fun SettingsPageContent(
     }
 }
 
-private fun LazyListScope.buildCategoriesSection() {
+private fun LazyListScope.buildCategoriesSection(
+    categories: List<CategoryUiModel>,
+    showSeeMoreButton: Boolean
+) {
     item {
         Text(
             stringResource(R.string.categories),
@@ -123,42 +128,33 @@ private fun LazyListScope.buildCategoriesSection() {
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CategoryCard(
-                    "Home",
-                    true,
-                    Modifier.weight(1f)
-                )
-                CategoryCard(
-                    "Food",
-                    true,
-                    Modifier.weight(1f)
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CategoryCard(
-                    "Transport",
-                    true,
-                    Modifier.weight(1f)
-                )
-                CategoryCard(
-                    "Salary",
-                    false,
-                    Modifier.weight(1f)
-                )
+            categories.chunked(2).forEach { uiModels ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    uiModels.forEach { uiModel ->
+                        CategoryCard(
+                            uiModel.icon,
+                            uiModel.label,
+                            uiModel.isExpense,
+                            Modifier.weight(1f)
+                        )
+                    }
+
+                    if (uiModels.size == 1) {
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
             }
 
-            SeeMoreButton(Modifier.align(Alignment.CenterHorizontally))
+            if (showSeeMoreButton) SeeMoreButton(Modifier.align(Alignment.CenterHorizontally))
         }
     }
 }
 
 @Composable
 private fun CategoryCard(
+    iconRes: Int,
     categoryLabel: String,
     isExpense: Boolean,
     modifier: Modifier = Modifier
@@ -177,8 +173,8 @@ private fun CategoryCard(
                     )
             ) {
                 Icon(
-                    painterResource(R.drawable.baseline_home_filled_24),
-                    "home",
+                    painterResource(iconRes),
+                    null,
                     modifier = Modifier.padding(8.dp),
                     tint = if (isExpense) MaterialTheme.colorScheme.onErrorContainer
                     else MaterialTheme.colorScheme.onPrimaryContainer

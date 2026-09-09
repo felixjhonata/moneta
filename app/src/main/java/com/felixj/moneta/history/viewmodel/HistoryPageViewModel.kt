@@ -2,6 +2,7 @@ package com.felixj.moneta.history.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felixj.moneta.R
 import com.felixj.moneta.history.model.HistoryListItemUiModel
 import com.felixj.moneta.history.model.HistoryPageUiEvent
 import com.felixj.moneta.history.model.HistoryPageUiState
@@ -26,6 +27,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                 HistoryListItemUiModel.Date("Today"),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Electricity Bills"),
                         UiText.DynamicString("4 September 2026"),
                         UiText.DynamicString("-Rp 1.200.000"),
@@ -34,6 +36,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                 ),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Water Bills"),
                         UiText.DynamicString("4 September 2026"),
                         UiText.DynamicString("-Rp 800.000"),
@@ -42,6 +45,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                 ),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        R.drawable.baseline_account_balance_wallet_24,
                         UiText.DynamicString("Salary"),
                         UiText.DynamicString("4 September 2026"),
                         UiText.DynamicString("+Rp 13.000.000"),
@@ -51,6 +55,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                 HistoryListItemUiModel.Date("Yesterday"),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Phone Bills"),
                         UiText.DynamicString("3 September 2026"),
                         UiText.DynamicString("-Rp 100.000"),

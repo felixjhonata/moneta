@@ -2,6 +2,8 @@ package com.felixj.moneta.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felixj.moneta.R
+import com.felixj.moneta.settings.model.CategoryUiModel
 import com.felixj.moneta.settings.model.SettingsPageUiEvent
 import com.felixj.moneta.settings.model.SettingsPageUiState
 import com.felixj.moneta.settings.model.SettingsPageUserEvent
@@ -19,9 +21,32 @@ import javax.inject.Inject
 class SettingsPageViewModel @Inject constructor() : ViewModel() {
     companion object {
         fun dummyUiState(isDarkMode: Boolean = false) = SettingsPageUiState(
+            categories = listOf(
+                CategoryUiModel(
+                    R.drawable.baseline_lightbulb_24,
+                    "Utilities",
+                    true
+                ),
+                CategoryUiModel(
+                    R.drawable.baseline_fastfood_24,
+                    "Food",
+                    true
+                ),
+                CategoryUiModel(
+                    R.drawable.baseline_directions_bus_24,
+                    "Transport",
+                    true
+                ),
+                CategoryUiModel(
+                    R.drawable.baseline_account_balance_wallet_24,
+                    "Salary",
+                    false
+                )
+            ),
             currency = "IDR (Rp)",
             isDarkMode = isDarkMode,
-            currencies = listOf("USD ($)", "IDR (Rp)")
+            currencies = listOf("USD ($)", "IDR (Rp)"),
+            showSeeMoreButton = true
         )
     }
 

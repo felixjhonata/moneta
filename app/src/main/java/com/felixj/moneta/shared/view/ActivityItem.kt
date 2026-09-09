@@ -40,8 +40,8 @@ fun ActivityItem(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painterResource(R.drawable.baseline_home_filled_24),
-                "home",
+                painterResource(uiModel.icon),
+                null,
                 modifier = Modifier.padding(8.dp),
                 tint = if (uiModel.isExpense) MaterialTheme.colorScheme.onErrorContainer
                 else MaterialTheme.colorScheme.onPrimaryContainer
