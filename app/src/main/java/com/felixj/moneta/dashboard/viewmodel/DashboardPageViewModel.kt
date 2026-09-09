@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixj.moneta.R
 import com.felixj.moneta.dashboard.model.DashboardPageUiEvent
+import com.felixj.moneta.dashboard.model.DashboardPageUiEvent.*
 import com.felixj.moneta.dashboard.model.DashboardPageUiState
 import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
@@ -69,7 +70,7 @@ class DashboardPageViewModel @Inject constructor() : ViewModel() {
                     BottomNavigationBarDestination.History -> {
                         viewModelScope.launch {
                             _uiEvent.emit(
-                                DashboardPageUiEvent.NavigateTo(
+                                NavigateTo(
                                     MonetaRoute.History,
                                     true
                                 )
@@ -80,13 +81,24 @@ class DashboardPageViewModel @Inject constructor() : ViewModel() {
                     BottomNavigationBarDestination.Settings -> {
                         viewModelScope.launch {
                             _uiEvent.emit(
-                                DashboardPageUiEvent.NavigateTo(
+                                NavigateTo(
                                     MonetaRoute.Settings,
                                     true
                                 )
                             )
                         }
                     }
+                }
+            }
+
+            DashboardPageUserEvent.SeeMoreButtonClick -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        NavigateTo(
+                            MonetaRoute.History,
+                            true
+                        )
+                    )
                 }
             }
         }

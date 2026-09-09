@@ -147,7 +147,7 @@ private fun LazyListScope.buildCategoriesSection(
                 }
             }
 
-            if (showSeeMoreButton) SeeMoreButton(Modifier.align(Alignment.CenterHorizontally))
+            if (showSeeMoreButton) SeeMoreButton({}, Modifier.align(Alignment.CenterHorizontally))
         }
     }
 }

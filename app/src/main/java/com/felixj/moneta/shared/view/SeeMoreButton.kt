@@ -17,10 +17,13 @@ import com.felixj.moneta.ui.theme.MonetaTheme
 
 
 @Composable
-fun SeeMoreButton(modifier: Modifier = Modifier) {
+fun SeeMoreButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     TextButton(
         modifier = modifier,
-        onClick = {}
+        onClick = onClick
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -40,6 +43,6 @@ fun SeeMoreButton(modifier: Modifier = Modifier) {
 @Composable
 private fun SeeMoreButtonPreview() {
     MonetaTheme {
-        SeeMoreButton()
+        SeeMoreButton({})
     }
 }
