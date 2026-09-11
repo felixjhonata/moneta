@@ -17,6 +17,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsPageViewModel @Inject constructor() : ViewModel() {
+    private val _uiState = MutableStateFlow(SettingsPageUiState())
+    val uiState = _uiState.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<SettingsPageUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
+    fun onUserEvent(userEvent: SettingsPageUserEvent) {
+        when (userEvent) {
+            is SettingsPageUserEvent.NavigateTo -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(SettingsPageUiEvent.NavigateTo(userEvent.destination))
+                }
+            }
+        }
+    }
+
     companion object {
         fun dummyUiState(isDarkMode: Boolean = false) = SettingsPageUiState(
             categories = listOf(
@@ -46,24 +62,5 @@ class SettingsPageViewModel @Inject constructor() : ViewModel() {
             currencies = listOf("USD ($)", "IDR (Rp)"),
             showSeeMoreButton = true
         )
-    }
-
-    private val _uiState = MutableStateFlow(
-//        SettingsPageUiState() TODO: Uncomment
-        dummyUiState() // TODO: Remove
-    )
-    val uiState = _uiState.asStateFlow()
-
-    private val _uiEvent = MutableSharedFlow<SettingsPageUiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
-
-    fun onUserEvent(userEvent: SettingsPageUserEvent) {
-        when (userEvent) {
-            is SettingsPageUserEvent.NavigateTo -> {
-                viewModelScope.launch {
-                    _uiEvent.emit(SettingsPageUiEvent.NavigateTo(userEvent.destination))
-                }
-            }
-        }
     }
 }

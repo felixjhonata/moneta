@@ -19,6 +19,23 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryPageViewModel @Inject constructor(): ViewModel() {
+    private val _uiState = MutableStateFlow(HistoryPageUiState())
+    val uiState = _uiState.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<HistoryPageUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
+    fun onUserEvent(userEvent: HistoryPageUserEvent) {
+        when (userEvent) {
+            is HistoryPageUserEvent.NavigateTo -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        HistoryPageUiEvent.NavigateTo(userEvent.destination))
+                }
+            }
+        }
+    }
+
     companion object {
         fun dummyUiState() = HistoryPageUiState(
             listOf(
@@ -62,25 +79,5 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                 )
             )
         )
-    }
-
-    private val _uiState = MutableStateFlow(
-//        HistoryPageUiState() TODO: Uncomment
-        dummyUiState() // TODO: Remove
-    )
-    val uiState = _uiState.asStateFlow()
-
-    private val _uiEvent = MutableSharedFlow<HistoryPageUiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
-
-    fun onUserEvent(userEvent: HistoryPageUserEvent) {
-        when (userEvent) {
-            is HistoryPageUserEvent.NavigateTo -> {
-                viewModelScope.launch {
-                    _uiEvent.emit(
-                        HistoryPageUiEvent.NavigateTo(userEvent.destination))
-                }
-            }
-        }
     }
 }
