@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -19,6 +20,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -121,33 +123,60 @@ private fun LazyListScope.buildCategoriesSection(
         )
     }
 
-    item {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            categories.chunked(2).forEach { uiModels ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+    if (categories.isEmpty()) {
+        item {
+            Box(
+                modifier = Modifier
+                    .height(96.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    uiModels.forEach { uiModel ->
-                        CategoryCard(
-                            uiModel.icon,
-                            uiModel.label,
-                            uiModel.isExpense,
-                            Modifier.weight(1f)
-                        )
-                    }
+                    Text(
+                        stringResource(R.string.no_categories),
+                        color = MaterialTheme.colorScheme.outline
+                    )
 
-                    if (uiModels.size == 1) {
-                        Spacer(Modifier.weight(1f))
+                    TextButton({}) {
+                        Text(stringResource(R.string.add_category))
                     }
                 }
             }
+        }
+    } else {
+        item {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                categories.chunked(2).forEach { uiModels ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        uiModels.forEach { uiModel ->
+                            CategoryCard(
+                                uiModel.icon,
+                                uiModel.label,
+                                uiModel.isExpense,
+                                Modifier.weight(1f)
+                            )
+                        }
 
-            if (showSeeMoreButton) SeeMoreButton({}, Modifier.align(Alignment.CenterHorizontally))
+                        if (uiModels.size == 1) {
+                            Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+
+                if (showSeeMoreButton) SeeMoreButton(
+                    {},
+                    Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.felixj.moneta.history.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -95,23 +98,37 @@ private fun HistoryPageContent(
                 )
             }
 
-            items(uiState.historyListItems) { item ->
-                when (item) {
-                    is HistoryListItemUiModel.Date -> {
+            if (uiState.historyListItems.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.height(96.dp).fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
-                            item.date,
-                            modifier = Modifier
-                                .padding(horizontal = 24.dp)
-                                .fillMaxWidth(),
-                            style = MaterialTheme.typography.titleSmall
+                            stringResource(R.string.no_activities_yet),
+                            color = MaterialTheme.colorScheme.outline
                         )
                     }
+                }
+            } else {
+                items(uiState.historyListItems) { item ->
+                    when (item) {
+                        is HistoryListItemUiModel.Date -> {
+                            Text(
+                                item.date,
+                                modifier = Modifier
+                                    .padding(horizontal = 24.dp)
+                                    .fillMaxWidth(),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
 
-                    is HistoryListItemUiModel.ActivityItem -> {
-                        ActivityItem(
-                            item.itemUiModel,
-                            modifier = Modifier.padding(horizontal = 24.dp)
-                        )
+                        is HistoryListItemUiModel.ActivityItem -> {
+                            ActivityItem(
+                                item.itemUiModel,
+                                modifier = Modifier.padding(horizontal = 24.dp)
+                            )
+                        }
                     }
                 }
             }

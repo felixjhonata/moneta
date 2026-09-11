@@ -8,10 +8,12 @@
     <string name="rp_value">Rp %1$s</string>
     <string name="recent_activities">Recent Activities</string>
     <string name="no_activities_yet">No activities yet</string>
+    <string name="no_categories">No categories</string>
     <string name="current_balance">Current Balance</string>
     <string name="see_more">See more</string>
     <string name="personalization">Personalization</string>
     <string name="currency">Currency</string>
     <string name="categories">Categories</string>
     <string name="dark_mode">Dark mode</string>
+    <string name="add_category">Add category</string>
 </resources>
