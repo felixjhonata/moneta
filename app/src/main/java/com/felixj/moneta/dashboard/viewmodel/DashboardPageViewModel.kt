@@ -10,16 +10,67 @@ import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
+import com.felixj.moneta.shared.repository.ActivityRepository
+import com.felixj.moneta.shared.room.entity.ActivityType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val MAX_RECENT_ACTIVITY = 3
+
 @HiltViewModel
-class DashboardPageViewModel @Inject constructor() : ViewModel() {
+class DashboardPageViewModel @Inject constructor(
+    private val activityRepository: ActivityRepository
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(DashboardPageUiState())
+    val uiState = _uiState.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<DashboardPageUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
+    fun onUserEvent(userEvent: DashboardPageUserEvent) {
+        when (userEvent) {
+            DashboardPageUserEvent.LoadData -> {
+                viewModelScope.launch {
+                    _uiState.update {
+                        it.copy(
+                            recentActivities = activityRepository.getActivities(MAX_RECENT_ACTIVITY).map { activity ->
+                                ActivityItemUiModel(
+                                    R.drawable.baseline_lightbulb_24,
+                                    UiText.DynamicString(activity.name),
+                                    UiText.DynamicString(activity.date),
+                                    UiText.DynamicString(activity.amount.toString()),
+                                    activity.type == ActivityType.EXPENSE
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+
+            is DashboardPageUserEvent.NavigateTo -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        NavigateTo(userEvent.destination)
+                    )
+                }
+            }
+
+            DashboardPageUserEvent.SeeMoreButtonClick -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        NavigateTo(MonetaRoute.History)
+                    )
+                }
+            }
+        }
+    }
+
     companion object {
         fun dummyUiState() = DashboardPageUiState(
             UiText.StringResource(R.string.rp_value, "4.850.000"),
@@ -50,34 +101,5 @@ class DashboardPageViewModel @Inject constructor() : ViewModel() {
             ),
             true
         )
-    }
-
-    private val _uiState = MutableStateFlow(
-//        DashboardPageUiState() TODO: Uncomment
-        dummyUiState() // TODO: Remove
-    )
-    val uiState = _uiState.asStateFlow()
-
-    private val _uiEvent = MutableSharedFlow<DashboardPageUiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
-
-    fun onUserEvent(userEvent: DashboardPageUserEvent) {
-        when (userEvent) {
-            is DashboardPageUserEvent.NavigateTo -> {
-                viewModelScope.launch {
-                    _uiEvent.emit(
-                        NavigateTo(MonetaRoute.History)
-                    )
-                }
-            }
-
-            DashboardPageUserEvent.SeeMoreButtonClick -> {
-                viewModelScope.launch {
-                    _uiEvent.emit(
-                        NavigateTo(MonetaRoute.History)
-                    )
-                }
-            }
-        }
     }
 }

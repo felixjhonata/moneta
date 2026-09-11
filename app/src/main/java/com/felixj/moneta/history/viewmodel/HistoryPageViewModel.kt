@@ -8,7 +8,6 @@ import com.felixj.moneta.history.model.HistoryPageUiEvent
 import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
-import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -79,7 +78,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
             is HistoryPageUserEvent.NavigateTo -> {
                 viewModelScope.launch {
                     _uiEvent.emit(
-                        HistoryPageUiEvent.NavigateTo(MonetaRoute.Settings))
+                        HistoryPageUiEvent.NavigateTo(userEvent.destination))
                 }
             }
         }

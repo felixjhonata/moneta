@@ -12,8 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +47,10 @@ fun DashboardPage(
     modifier: Modifier = Modifier,
     viewModel: DashboardPageViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.onUserEvent(DashboardPageUserEvent.LoadData)
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -77,14 +78,6 @@ private fun DashboardPageContent(
 ) {
     Scaffold(
         modifier = modifier,
-        floatingActionButton = {
-            FloatingActionButton({}) {
-                Icon(
-                    painterResource(R.drawable.baseline_add_24),
-                    "add"
-                )
-            }
-        },
         bottomBar = {
             BottomNavigationBar(
                 BottomNavigationBarDestination.Dashboard,
