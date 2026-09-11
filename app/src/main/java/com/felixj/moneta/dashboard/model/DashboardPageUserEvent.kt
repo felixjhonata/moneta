@@ -1,8 +1,8 @@
 package com.felixj.moneta.dashboard.model
 
-import com.felixj.moneta.shared.view.BottomNavigationBarDestination
+import com.felixj.moneta.shared.model.MonetaRoute
 
 sealed interface DashboardPageUserEvent {
-    data class BottomNavigationDestinationSelected(val destination: BottomNavigationBarDestination) : DashboardPageUserEvent
+    data class NavigateTo(val destination: MonetaRoute) : DashboardPageUserEvent
     data object SeeMoreButtonClick: DashboardPageUserEvent
 }

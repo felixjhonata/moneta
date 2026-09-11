@@ -4,13 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixj.moneta.R
 import com.felixj.moneta.dashboard.model.DashboardPageUiEvent
-import com.felixj.moneta.dashboard.model.DashboardPageUiEvent.*
+import com.felixj.moneta.dashboard.model.DashboardPageUiEvent.NavigateTo
 import com.felixj.moneta.dashboard.model.DashboardPageUiState
 import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
-import com.felixj.moneta.shared.view.BottomNavigationBarDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,40 +63,18 @@ class DashboardPageViewModel @Inject constructor() : ViewModel() {
 
     fun onUserEvent(userEvent: DashboardPageUserEvent) {
         when (userEvent) {
-            is DashboardPageUserEvent.BottomNavigationDestinationSelected -> {
-                when (userEvent.destination) {
-                    BottomNavigationBarDestination.Dashboard -> Unit
-                    BottomNavigationBarDestination.History -> {
-                        viewModelScope.launch {
-                            _uiEvent.emit(
-                                NavigateTo(
-                                    MonetaRoute.History,
-                                    true
-                                )
-                            )
-                        }
-                    }
-
-                    BottomNavigationBarDestination.Settings -> {
-                        viewModelScope.launch {
-                            _uiEvent.emit(
-                                NavigateTo(
-                                    MonetaRoute.Settings,
-                                    true
-                                )
-                            )
-                        }
-                    }
+            is DashboardPageUserEvent.NavigateTo -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        NavigateTo(MonetaRoute.History)
+                    )
                 }
             }
 
             DashboardPageUserEvent.SeeMoreButtonClick -> {
                 viewModelScope.launch {
                     _uiEvent.emit(
-                        NavigateTo(
-                            MonetaRoute.History,
-                            true
-                        )
+                        NavigateTo(MonetaRoute.History)
                     )
                 }
             }

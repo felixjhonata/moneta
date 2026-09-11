@@ -10,7 +10,6 @@ import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
-import com.felixj.moneta.shared.view.BottomNavigationBarDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,19 +76,10 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
 
     fun onUserEvent(userEvent: HistoryPageUserEvent) {
         when (userEvent) {
-            is HistoryPageUserEvent.BottomNavigationDestinationSelected -> {
-                when (userEvent.destination) {
-                    BottomNavigationBarDestination.History -> Unit
-                    BottomNavigationBarDestination.Dashboard -> {
-                        viewModelScope.launch {
-                            _uiEvent.emit(HistoryPageUiEvent.NavigateTo(MonetaRoute.Dashboard, true))
-                        }
-                    }
-                    BottomNavigationBarDestination.Settings -> {
-                        viewModelScope.launch {
-                            _uiEvent.emit(HistoryPageUiEvent.NavigateTo(MonetaRoute.Settings, true))
-                        }
-                    }
+            is HistoryPageUserEvent.NavigateTo -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        HistoryPageUiEvent.NavigateTo(MonetaRoute.Settings))
                 }
             }
         }

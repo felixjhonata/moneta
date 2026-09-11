@@ -29,6 +29,7 @@ import com.felixj.moneta.history.model.HistoryPageUiEvent
 import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.history.viewmodel.HistoryPageViewModel
+import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
@@ -46,8 +47,7 @@ fun HistoryPage(
         viewModel.uiEvent.collect { uiEvent ->
             when (uiEvent) {
                 is HistoryPageUiEvent.NavigateTo -> {
-                    if (uiEvent.clearBackStack) backStack.clear()
-                    backStack.add(uiEvent.destination)
+                    backStack.navigateTo(uiEvent.destination)
                 }
             }
         }
@@ -79,7 +79,7 @@ private fun HistoryPageContent(
         bottomBar = {
             BottomNavigationBar(
                 BottomNavigationBarDestination.History,
-                { onUserEvent(HistoryPageUserEvent.BottomNavigationDestinationSelected(it)) }
+                { onUserEvent(HistoryPageUserEvent.NavigateTo(it.destination)) }
             )
         }
     ) { innerPadding ->

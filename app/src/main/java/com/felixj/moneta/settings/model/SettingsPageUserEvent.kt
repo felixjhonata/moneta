@@ -1,7 +1,7 @@
 package com.felixj.moneta.settings.model
 
-import com.felixj.moneta.shared.view.BottomNavigationBarDestination
+import com.felixj.moneta.shared.model.MonetaRoute
 
 sealed interface SettingsPageUserEvent {
-    data class BottomNavigationDestinationSelected(val destination: BottomNavigationBarDestination) : SettingsPageUserEvent
+    data class NavigateTo(val destination: MonetaRoute) : SettingsPageUserEvent
 }

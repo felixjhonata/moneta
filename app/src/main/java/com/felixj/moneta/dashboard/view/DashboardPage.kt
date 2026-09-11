@@ -37,6 +37,7 @@ import com.felixj.moneta.dashboard.model.DashboardPageUiState
 import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
 import com.felixj.moneta.dashboard.viewmodel.DashboardPageViewModel
 import com.felixj.moneta.shared.model.ActivityItemUiModel
+import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
@@ -55,8 +56,7 @@ fun DashboardPage(
         viewModel.uiEvent.collect { uiEvent ->
             when (uiEvent) {
                 is DashboardPageUiEvent.NavigateTo -> {
-                    if (uiEvent.clearBackStack) backStack.clear()
-                    backStack.add(uiEvent.destination)
+                    backStack.navigateTo(uiEvent.destination)
                 }
             }
         }
@@ -88,7 +88,7 @@ private fun DashboardPageContent(
         bottomBar = {
             BottomNavigationBar(
                 BottomNavigationBarDestination.Dashboard,
-                { onUserEvent(DashboardPageUserEvent.BottomNavigationDestinationSelected(it)) }
+                { onUserEvent(DashboardPageUserEvent.NavigateTo(it.destination)) }
             )
         }
     ) { innerPadding ->

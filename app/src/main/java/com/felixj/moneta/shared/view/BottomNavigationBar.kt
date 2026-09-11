@@ -10,10 +10,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.felixj.moneta.R
+import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.ui.theme.MonetaTheme
 
-enum class BottomNavigationBarDestination {
-    Dashboard, History, Settings
+enum class BottomNavigationBarDestination(val destination: MonetaRoute) {
+    Dashboard(MonetaRoute.Dashboard),
+    History(MonetaRoute.History),
+    Settings(MonetaRoute.Settings)
 }
 
 @Composable

@@ -40,6 +40,7 @@ import com.felixj.moneta.settings.model.SettingsPageUiEvent
 import com.felixj.moneta.settings.model.SettingsPageUiState
 import com.felixj.moneta.settings.model.SettingsPageUserEvent
 import com.felixj.moneta.settings.viewmodel.SettingsPageViewModel
+import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
 import com.felixj.moneta.shared.view.SeeMoreButton
@@ -57,8 +58,7 @@ fun SettingsPage(
         viewModel.uiEvent.collect { uiEvent ->
             when (uiEvent) {
                 is SettingsPageUiEvent.NavigateTo -> {
-                    if (uiEvent.clearBackStack) backStack.clear()
-                    backStack.add(uiEvent.destination)
+                    backStack.navigateTo(uiEvent.destination)
                 }
             }
         }
@@ -82,7 +82,7 @@ private fun SettingsPageContent(
         bottomBar = {
             BottomNavigationBar(
                 BottomNavigationBarDestination.Settings,
-                { onUserEvent(SettingsPageUserEvent.BottomNavigationDestinationSelected(it)) }
+                { onUserEvent(SettingsPageUserEvent.NavigateTo(it.destination)) }
             )
         }
     ) { innerPadding ->
