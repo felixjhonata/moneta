@@ -38,6 +38,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
 import com.felixj.moneta.settings.model.CategoryUiModel
+import com.felixj.moneta.settings.model.Currency
 import com.felixj.moneta.settings.model.SettingsPageUiEvent
 import com.felixj.moneta.settings.model.SettingsPageUiState
 import com.felixj.moneta.settings.model.SettingsPageUserEvent
@@ -54,6 +55,10 @@ fun SettingsPage(
     modifier: Modifier = Modifier,
     viewModel: SettingsPageViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.onUserEvent(SettingsPageUserEvent.LoadData)
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -105,7 +110,9 @@ private fun SettingsPageContent(
             buildPersonalizationSection(
                 uiState.isDarkMode,
                 uiState.currency,
-                uiState.currencies
+                uiState.currencies,
+                uiState.currencyDropdownExpanded,
+                onUserEvent
             )
         }
     }
@@ -221,8 +228,10 @@ private fun CategoryCard(
 
 private fun LazyListScope.buildPersonalizationSection(
     isDarkMode: Boolean,
-    currency: String,
-    currencies: List<String>
+    currency: Currency,
+    currencies: List<Currency>,
+    currencyDropdownExpanded: Boolean,
+    onUserEvent: (SettingsPageUserEvent) -> Unit
 ) {
     item {
         Text(
@@ -243,7 +252,7 @@ private fun LazyListScope.buildPersonalizationSection(
                 modifier = Modifier.weight(1f)
             )
 
-            CurrencyDropdown(currency, currencies)
+            CurrencyDropdown(currency, currencies, currencyDropdownExpanded, onUserEvent)
         }
     }
 
@@ -258,26 +267,33 @@ private fun LazyListScope.buildPersonalizationSection(
                 modifier = Modifier.weight(1f)
             )
 
-            Switch(isDarkMode, {})
+            Switch(
+                isDarkMode,
+                { onUserEvent(SettingsPageUserEvent.ToggleDarkMode(it)) }
+            )
         }
     }
 }
 
 @Composable
 private fun CurrencyDropdown(
-    currency: String,
-    currencies: List<String>,
+    currency: Currency,
+    currencies: List<Currency>,
+    currencyDropdownExpanded: Boolean,
+    onUserEvent: (SettingsPageUserEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier) {
-        OutlinedCard {
+        OutlinedCard(
+            onClick = { onUserEvent(SettingsPageUserEvent.ToggleCurrencyDropdown(true)) }
+        ) {
             Row(
                 modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    currency,
+                    stringResource(currency.label),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Icon(
@@ -288,11 +304,14 @@ private fun CurrencyDropdown(
         }
 
         DropdownMenu(
-            false,
-            {}
+            currencyDropdownExpanded,
+            { onUserEvent(SettingsPageUserEvent.ToggleCurrencyDropdown(false)) }
         ) {
             currencies.forEach {
-                DropdownMenuItem({ Text(it) }, {})
+                DropdownMenuItem(
+                    { Text(stringResource(it.label)) },
+                    { onUserEvent(SettingsPageUserEvent.SelectCurrency(it)) }
+                )
             }
         }
     }

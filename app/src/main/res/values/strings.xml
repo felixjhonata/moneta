@@ -6,6 +6,7 @@
     <string name="earned_this_month">Earned this month</string>
     <string name="spent_this_month">Spent this month</string>
     <string name="rp_value">Rp %1$s</string>
+    <string name="dollar_value">$ %1s</string>
     <string name="recent_activities">Recent Activities</string>
     <string name="no_activities_yet">No activities yet</string>
     <string name="no_categories">No categories</string>
@@ -16,4 +17,6 @@
     <string name="categories">Categories</string>
     <string name="dark_mode">Dark mode</string>
     <string name="add_category">Add category</string>
+    <string name="usd_currency_label">USD ($)</string>
+    <string name="idr_currency_label">IDR (Rp)</string>
 </resources>
