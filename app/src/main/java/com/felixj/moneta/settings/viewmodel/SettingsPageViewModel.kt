@@ -9,6 +9,7 @@ import com.felixj.moneta.settings.model.SettingsPageUiEvent
 import com.felixj.moneta.settings.model.SettingsPageUiEvent.*
 import com.felixj.moneta.settings.model.SettingsPageUiState
 import com.felixj.moneta.settings.model.SettingsPageUserEvent
+import com.felixj.moneta.shared.repository.CategoryRepository
 import com.felixj.moneta.shared.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,8 +20,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val MAX_CATEGORIES = 4
+
 @HiltViewModel
 class SettingsPageViewModel @Inject constructor(
+    private val categoryRepository: CategoryRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SettingsPageUiState())
@@ -40,6 +44,21 @@ class SettingsPageViewModel @Inject constructor(
                         isDarkMode = isDark,
                         currency = userPreferencesRepository.getCurrency()
                     )
+                }
+                viewModelScope.launch {
+                    val categories = categoryRepository.getCategories(MAX_CATEGORIES).map { category ->
+                        CategoryUiModel(
+                            icon = category.icon,
+                            label = category.name,
+                            isExpense = !category.name.equals("Salary", ignoreCase = true)
+                        )
+                    }
+                    _uiState.update {
+                        it.copy(
+                            categories = categories,
+                            showSeeMoreButton = categories.isNotEmpty()
+                        )
+                    }
                 }
             }
             is SettingsPageUserEvent.NavigateTo -> {
