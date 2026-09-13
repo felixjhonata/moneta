@@ -20,6 +20,7 @@ object RoomModule {
         @ApplicationContext applicationContext: Context
     ) = Room.databaseBuilder<MonetaDatabase>(applicationContext, "moneta_db")
         .setDriver(AndroidSQLiteDriver())
+        .createFromAsset("database/moneta_db.db")
         .build()
 
     @Provides
