@@ -22,40 +22,43 @@ class UserPreferencesRepository @Inject constructor(
         private val DEFAULT_CURRENCY = Currency.IDR
     }
 
-    val currencyFlow = callbackFlow {
-        trySend(getCurrency())
-
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == KEY_CURRENCY) {
-                trySend(getCurrency())
-            }
-        }
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
-    }
-
     fun getCurrency(): Currency {
         val rawName = prefs.getString(KEY_CURRENCY, null) ?: return DEFAULT_CURRENCY
         return runCatching { Currency.valueOf(rawName) }.getOrDefault(DEFAULT_CURRENCY)
     }
 
-    val darkModeFlow = callbackFlow {
-        trySend(isDarkMode())
+    val darkModeFlow = callbackFlow<Boolean?> {
+        trySend(getDarkModePreference())
 
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_DARK_MODE) {
-                trySend(isDarkMode())
+                trySend(getDarkModePreference())
             }
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
-    fun isDarkMode(): Boolean = prefs.getBoolean(KEY_DARK_MODE, false)
+    fun getDarkModePreference(): Boolean? {
+        if (!prefs.contains(KEY_DARK_MODE)) return null
+        return prefs.getBoolean(KEY_DARK_MODE, false)
+    }
+
+    fun isUsingSystemTheme(): Boolean = !prefs.contains(KEY_DARK_MODE)
 
     fun setCurrency(currency: Currency) {
         prefs.edit {
             putString(KEY_CURRENCY, currency.name)
+        }
+    }
+
+    fun setUseSystemTheme(useSystemTheme: Boolean) {
+        prefs.edit {
+            if (useSystemTheme) {
+                remove(KEY_DARK_MODE)
+            } else {
+                putBoolean(KEY_DARK_MODE, false)
+            }
         }
     }
 

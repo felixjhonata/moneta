@@ -32,9 +32,12 @@ class SettingsPageViewModel @Inject constructor(
     fun onUserEvent(userEvent: SettingsPageUserEvent) {
         when (userEvent) {
             SettingsPageUserEvent.LoadData -> {
+                val usingSystemTheme = userPreferencesRepository.isUsingSystemTheme()
+                val isDark = if (usingSystemTheme) false else (userPreferencesRepository.getDarkModePreference() ?: false)
                 _uiState.update {
                     it.copy(
-                        isDarkMode = userPreferencesRepository.isDarkMode(),
+                        useSystemTheme = usingSystemTheme,
+                        isDarkMode = isDark,
                         currency = userPreferencesRepository.getCurrency()
                     )
                 }
@@ -46,6 +49,15 @@ class SettingsPageViewModel @Inject constructor(
             }
             is SettingsPageUserEvent.ToggleCurrencyDropdown -> {
                 _uiState.update { it.copy(currencyDropdownExpanded = userEvent.isExpanded) }
+            }
+            is SettingsPageUserEvent.ToggleUseSystemTheme -> {
+                userPreferencesRepository.setUseSystemTheme(userEvent.isOn)
+                _uiState.update {
+                    it.copy(
+                        useSystemTheme = userEvent.isOn,
+                        isDarkMode = false
+                    )
+                }
             }
             is SettingsPageUserEvent.ToggleDarkMode -> {
                 userPreferencesRepository.setDarkMode(userEvent.isOn)
@@ -59,7 +71,7 @@ class SettingsPageViewModel @Inject constructor(
     }
 
     companion object {
-        fun dummyUiState(isDarkMode: Boolean = false) = SettingsPageUiState(
+        fun dummyUiState(isDarkMode: Boolean = false, useSystemTheme: Boolean = true) = SettingsPageUiState(
             categories = listOf(
                 CategoryUiModel(
                     R.drawable.baseline_lightbulb_24,

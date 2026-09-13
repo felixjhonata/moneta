@@ -108,6 +108,7 @@ private fun SettingsPageContent(
             buildCategoriesSection(uiState.categories, uiState.showSeeMoreButton)
 
             buildPersonalizationSection(
+                uiState.useSystemTheme,
                 uiState.isDarkMode,
                 uiState.currency,
                 uiState.currencies,
@@ -227,6 +228,7 @@ private fun CategoryCard(
 }
 
 private fun LazyListScope.buildPersonalizationSection(
+    useSystemTheme: Boolean,
     isDarkMode: Boolean,
     currency: Currency,
     currencies: List<Currency>,
@@ -263,13 +265,32 @@ private fun LazyListScope.buildPersonalizationSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
+                stringResource(R.string.use_system_theme),
+                modifier = Modifier.weight(1f)
+            )
+
+            Switch(
+                checked = useSystemTheme,
+                onCheckedChange = { onUserEvent(SettingsPageUserEvent.ToggleUseSystemTheme(it)) }
+            )
+        }
+    }
+
+    item {
+        Row(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
                 stringResource(R.string.dark_mode),
                 modifier = Modifier.weight(1f)
             )
 
             Switch(
-                isDarkMode,
-                { onUserEvent(SettingsPageUserEvent.ToggleDarkMode(it)) }
+                checked = if (useSystemTheme) false else isDarkMode,
+                enabled = !useSystemTheme,
+                onCheckedChange = { onUserEvent(SettingsPageUserEvent.ToggleDarkMode(it)) }
             )
         }
     }

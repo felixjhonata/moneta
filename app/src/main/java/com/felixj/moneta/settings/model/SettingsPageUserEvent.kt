@@ -7,5 +7,6 @@ sealed interface SettingsPageUserEvent {
     data class NavigateTo(val destination: MonetaRoute) : SettingsPageUserEvent
     data class ToggleCurrencyDropdown(val isExpanded: Boolean): SettingsPageUserEvent
     data class SelectCurrency(val currency: Currency): SettingsPageUserEvent
+    data class ToggleUseSystemTheme(val isOn: Boolean): SettingsPageUserEvent
     data class ToggleDarkMode(val isOn: Boolean): SettingsPageUserEvent
 }
