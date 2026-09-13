@@ -22,6 +22,18 @@ class UserPreferencesRepository @Inject constructor(
         private val DEFAULT_CURRENCY = Currency.IDR
     }
 
+    val currencyFlow = callbackFlow {
+        trySend(getCurrency())
+
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_CURRENCY) {
+                trySend(getCurrency())
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     fun getCurrency(): Currency {
         val rawName = prefs.getString(KEY_CURRENCY, null) ?: return DEFAULT_CURRENCY
         return runCatching { Currency.valueOf(rawName) }.getOrDefault(DEFAULT_CURRENCY)

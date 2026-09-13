@@ -45,7 +45,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                         R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Electricity Bills"),
                         UiText.DynamicString("4 September 2026"),
-                        UiText.DynamicString("-Rp 1.200.000"),
+                        UiText.CurrencyAmount(1200000, "- "),
                         true,
                     )
                 ),
@@ -54,7 +54,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                         R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Water Bills"),
                         UiText.DynamicString("4 September 2026"),
-                        UiText.DynamicString("-Rp 800.000"),
+                        UiText.CurrencyAmount(800000, "- "),
                         true,
                     )
                 ),
@@ -63,7 +63,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                         R.drawable.baseline_account_balance_wallet_24,
                         UiText.DynamicString("Salary"),
                         UiText.DynamicString("4 September 2026"),
-                        UiText.DynamicString("+Rp 13.000.000"),
+                        UiText.CurrencyAmount(13000000, "+ "),
                         false,
                     )
                 ),
@@ -73,7 +73,7 @@ class HistoryPageViewModel @Inject constructor(): ViewModel() {
                         R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Phone Bills"),
                         UiText.DynamicString("3 September 2026"),
-                        UiText.DynamicString("-Rp 100.000"),
+                        UiText.CurrencyAmount(100000, "- "),
                         true
                     )
                 )

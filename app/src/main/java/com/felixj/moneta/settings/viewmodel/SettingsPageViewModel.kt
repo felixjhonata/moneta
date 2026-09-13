@@ -95,6 +95,7 @@ class SettingsPageViewModel @Inject constructor(
                 )
             ),
             currency = Currency.IDR,
+            useSystemTheme = useSystemTheme,
             isDarkMode = isDarkMode,
             currencies = Currency.entries,
             showSeeMoreButton = true

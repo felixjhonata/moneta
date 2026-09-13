@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -14,6 +15,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.felixj.moneta.dashboard.view.DashboardPage
 import com.felixj.moneta.history.view.HistoryPage
+import com.felixj.moneta.settings.model.LocalAppCurrency
 import com.felixj.moneta.settings.view.SettingsPage
 import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.repository.UserPreferencesRepository
@@ -33,8 +35,12 @@ class MainActivity : ComponentActivity() {
             val darkMode by userPreferencesRepository.darkModeFlow.collectAsStateWithLifecycle(
                 initialValue = userPreferencesRepository.getDarkModePreference()
             )
+            val currency by userPreferencesRepository.currencyFlow.collectAsStateWithLifecycle(
+                initialValue = userPreferencesRepository.getCurrency()
+            )
 
-            MonetaTheme(darkMode ?: isSystemInDarkTheme()) {
+            CompositionLocalProvider(LocalAppCurrency provides currency) {
+                MonetaTheme(darkMode ?: isSystemInDarkTheme()) {
                 NavDisplay(
                     entryDecorators = listOf(
                         rememberSaveableStateHolderNavEntryDecorator(),
@@ -59,4 +65,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
 }

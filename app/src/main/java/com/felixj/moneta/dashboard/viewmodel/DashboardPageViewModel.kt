@@ -44,7 +44,10 @@ class DashboardPageViewModel @Inject constructor(
                                     R.drawable.baseline_lightbulb_24,
                                     UiText.DynamicString(activity.name),
                                     UiText.DynamicString(activity.date),
-                                    UiText.DynamicString(activity.amount.toString()),
+                                    UiText.CurrencyAmount(
+                                        amount = activity.amount,
+                                        prefix = if (activity.type == ActivityType.EXPENSE) "- " else "+ "
+                                    ),
                                     activity.type == ActivityType.EXPENSE
                                 )
                             }
@@ -73,29 +76,29 @@ class DashboardPageViewModel @Inject constructor(
 
     companion object {
         fun dummyUiState() = DashboardPageUiState(
-            UiText.StringResource(R.string.rp_value, "4.850.000"),
-            UiText.StringResource(R.string.rp_value, "1.500.000"),
-            UiText.StringResource(R.string.rp_value, "800.000"),
+            UiText.CurrencyAmount(4850000),
+            UiText.CurrencyAmount(1500000),
+            UiText.CurrencyAmount(800000),
             listOf(
                 ActivityItemUiModel(
                     R.drawable.baseline_lightbulb_24,
                     UiText.DynamicString("Electricity Bills"),
                     UiText.DynamicString("12 April 2026"),
-                    UiText.DynamicString("-Rp 1.200.000"),
+                    UiText.CurrencyAmount(1200000, "- "),
                     true
                 ),
                 ActivityItemUiModel(
                     R.drawable.baseline_lightbulb_24,
                     UiText.DynamicString("Water Bills"),
                     UiText.DynamicString("12 April 2026"),
-                    UiText.DynamicString("-Rp 800.000"),
+                    UiText.CurrencyAmount(800000, "- "),
                     true
                 ),
                 ActivityItemUiModel(
                     R.drawable.baseline_account_balance_wallet_24,
                     UiText.DynamicString("Salary"),
                     UiText.DynamicString("10 April 2026"),
-                    UiText.DynamicString("+Rp 2.000.000"),
+                    UiText.CurrencyAmount(2000000, "+ "),
                     false
                 )
             ),

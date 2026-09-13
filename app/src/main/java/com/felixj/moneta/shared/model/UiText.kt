@@ -3,6 +3,11 @@ package com.felixj.moneta.shared.model
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.felixj.moneta.settings.model.Currency
+import com.felixj.moneta.settings.model.LocalAppCurrency
+import java.text.NumberFormat
+import java.util.Locale
+import kotlin.math.abs
 
 sealed interface UiText {
     data class DynamicString(val value: String) : UiText
@@ -30,12 +35,27 @@ sealed interface UiText {
         }
     }
 
+    data class CurrencyAmount(
+        val amount: Long,
+        val prefix: String = ""
+    ) : UiText
+
     data object Empty: UiText
 
     @Composable
-    fun asString() = when (this) {
+    fun asString(): String = when (this) {
         is DynamicString -> value
         is StringResource -> stringResource(resourceId, *formatArgs)
+        is CurrencyAmount -> {
+            val currentCurrency = LocalAppCurrency.current
+            val locale = when (currentCurrency) {
+                Currency.IDR -> Locale.forLanguageTag("id-ID")
+                Currency.USD -> Locale.US
+            }
+            val formattedNumber = NumberFormat.getNumberInstance(locale).format(abs(amount))
+            val formattedCurrency = stringResource(currentCurrency.symbol, formattedNumber)
+            "$prefix$formattedCurrency"
+        }
         is Empty -> ""
     }
 }
