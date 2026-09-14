@@ -12,6 +12,7 @@ import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
 import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,24 +34,49 @@ class DashboardPageViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<DashboardPageUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
+    internal var dateRangeProvider: () -> Pair<String, String> = { DateUtil.getCurrentMonthUtcRange() }
+
     fun onUserEvent(userEvent: DashboardPageUserEvent) {
         when (userEvent) {
             DashboardPageUserEvent.LoadData -> {
                 viewModelScope.launch {
+                    val recentActivities = activityRepository.getActivities(MAX_RECENT_ACTIVITY)
+                    val currentBalance = activityRepository.getCurrentBalance()
+                    val (startOfMonth, startOfNextMonth) = dateRangeProvider()
+                    val earnedThisMonth = activityRepository.getTotalAmountByTypeAndDateRange(
+                        ActivityType.INCOME,
+                        startOfMonth,
+                        startOfNextMonth
+                    )
+                    val spentThisMonth = activityRepository.getTotalAmountByTypeAndDateRange(
+                        ActivityType.EXPENSE,
+                        startOfMonth,
+                        startOfNextMonth
+                    )
+
+                    val recentActivityUiModels = recentActivities.map { activity ->
+                        ActivityItemUiModel(
+                            R.drawable.baseline_lightbulb_24,
+                            UiText.DynamicString(activity.name),
+                            UiText.DynamicString(DateUtil.formatForDisplay(activity.date)),
+                            UiText.CurrencyAmount(
+                                amount = activity.amount,
+                                prefix = if (activity.type == ActivityType.EXPENSE) "- " else "+ "
+                            ),
+                            activity.type == ActivityType.EXPENSE
+                        )
+                    }
+
                     _uiState.update {
                         it.copy(
-                            recentActivities = activityRepository.getActivities(MAX_RECENT_ACTIVITY).map { activity ->
-                                ActivityItemUiModel(
-                                    R.drawable.baseline_lightbulb_24,
-                                    UiText.DynamicString(activity.name),
-                                    UiText.DynamicString(activity.date),
-                                    UiText.CurrencyAmount(
-                                        amount = activity.amount,
-                                        prefix = if (activity.type == ActivityType.EXPENSE) "- " else "+ "
-                                    ),
-                                    activity.type == ActivityType.EXPENSE
-                                )
-                            }
+                            currentBalance = UiText.CurrencyAmount(
+                                amount = currentBalance,
+                                prefix = if (currentBalance < 0) "- " else ""
+                            ),
+                            income = UiText.CurrencyAmount(earnedThisMonth),
+                            expense = UiText.CurrencyAmount(spentThisMonth),
+                            recentActivities = recentActivityUiModels,
+                            showSeeMoreButton = recentActivities.isNotEmpty()
                         )
                     }
                 }
