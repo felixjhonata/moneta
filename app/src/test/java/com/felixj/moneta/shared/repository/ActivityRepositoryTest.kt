@@ -3,7 +3,7 @@ package com.felixj.moneta.shared.repository
 import com.felixj.moneta.shared.room.dao.ActivityDao
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.ActivityType
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -19,7 +19,8 @@ class ActivityRepositoryTest {
 
         override suspend fun getActivities(limit: Int): List<Activity> {
             lastLimitPassed = limit
-            return if (limit < 0) activities else activities.take(limit)
+            val sorted = activities.sortedByDescending { it.date }
+            return if (limit < 0) sorted else sorted.take(limit)
         }
 
         override suspend fun getCurrentBalance(): Long {
@@ -47,10 +48,10 @@ class ActivityRepositoryTest {
     }
 
     @Test
-    fun getActivities_delegatesToDao() = runBlocking {
+    fun getActivities_delegatesToDaoAndReturnsMostRecent() = runTest {
         val sampleActivities = listOf(
-            Activity(1, 1, "Electricity", "2026-09-01T00:00:00Z", 500000, ActivityType.EXPENSE, ""),
-            Activity(2, 4, "Salary", "2026-09-05T00:00:00Z", 5000000, ActivityType.INCOME, "")
+            Activity(1, 1, "Electricity Older", "2026-09-01T00:00:00Z", 500000, ActivityType.EXPENSE, ""),
+            Activity(2, 4, "Salary Newer", "2026-09-05T00:00:00Z", 5000000, ActivityType.INCOME, "")
         )
         val fakeDao = FakeActivityDao(sampleActivities)
         val repository = ActivityRepository(fakeDao)
@@ -59,11 +60,11 @@ class ActivityRepositoryTest {
 
         assertEquals(1, fakeDao.lastLimitPassed)
         assertEquals(1, result.size)
-        assertEquals("Electricity", result[0].name)
+        assertEquals("Salary Newer", result[0].name)
     }
 
     @Test
-    fun getCurrentBalance_delegatesToDao() = runBlocking {
+    fun getCurrentBalance_delegatesToDao() = runTest {
         val sampleActivities = listOf(
             Activity(1, 4, "Salary", "2026-09-01T00:00:00Z", 5000000, ActivityType.INCOME, ""),
             Activity(2, 4, "Bonus", "2026-09-10T00:00:00Z", 1000000, ActivityType.INCOME, ""),
@@ -78,7 +79,7 @@ class ActivityRepositoryTest {
     }
 
     @Test
-    fun getTotalAmountByTypeAndDateRange_delegatesToDao() = runBlocking {
+    fun getTotalAmountByTypeAndDateRange_delegatesToDao() = runTest {
         val sampleActivities = listOf(
             Activity(1, 4, "Salary Sep", "2026-09-01T00:00:00Z", 5000000, ActivityType.INCOME, ""),
             Activity(2, 4, "Salary Aug", "2026-08-01T00:00:00Z", 4500000, ActivityType.INCOME, "")

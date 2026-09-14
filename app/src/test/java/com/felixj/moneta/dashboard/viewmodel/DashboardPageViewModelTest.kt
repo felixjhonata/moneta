@@ -8,9 +8,9 @@ import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.ActivityType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -22,13 +22,12 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class DashboardPageViewModelTest {
 
-    private val testDispatcher = StandardTestDispatcher()
-
     private class FakeActivityDao(
         private val activities: List<Activity> = emptyList()
     ) : ActivityDao {
         override suspend fun getActivities(limit: Int): List<Activity> {
-            return if (limit < 0) activities else activities.take(limit)
+            val sorted = activities.sortedByDescending { it.date }
+            return if (limit < 0) sorted else sorted.take(limit)
         }
 
         override suspend fun getCurrentBalance(): Long {
@@ -54,7 +53,7 @@ class DashboardPageViewModelTest {
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(testDispatcher)
+        Dispatchers.setMain(UnconfinedTestDispatcher())
     }
 
     @After
@@ -63,14 +62,13 @@ class DashboardPageViewModelTest {
     }
 
     @Test
-    fun loadData_withEmptyDatabase_setsZeroAmountsAndHidesSeeMore() = runBlocking {
+    fun loadData_withEmptyDatabase_setsZeroAmountsAndHidesSeeMore() = runTest {
         val fakeDao = FakeActivityDao(emptyList())
         val repository = ActivityRepository(fakeDao)
         val viewModel = DashboardPageViewModel(repository)
         viewModel.dateRangeProvider = { Pair("2026-09-01T00:00:00Z", "2026-10-01T00:00:00Z") }
 
         viewModel.onUserEvent(DashboardPageUserEvent.LoadData)
-        testDispatcher.scheduler.advanceUntilIdle()
 
         val uiState = viewModel.uiState.value
 
@@ -82,11 +80,11 @@ class DashboardPageViewModelTest {
     }
 
     @Test
-    fun loadData_withActivities_calculatesBalanceEarnedSpentAndShowsSeeMore() = runBlocking {
+    fun loadData_withActivities_calculatesBalanceEarnedSpentAndShowsSeeMore() = runTest {
         val sampleActivities = listOf(
-            Activity(1, 4, "Salary Sep", "2026-09-01T00:00:00Z", 5000000, ActivityType.INCOME, ""),
+            Activity(1, 4, "Salary Sep Older", "2026-09-01T00:00:00Z", 5000000, ActivityType.INCOME, ""),
             Activity(2, 4, "Salary Aug", "2026-08-01T00:00:00Z", 4000000, ActivityType.INCOME, ""),
-            Activity(3, 1, "Electricity Sep", "2026-09-05T00:00:00Z", 500000, ActivityType.EXPENSE, ""),
+            Activity(3, 1, "Electricity Sep Newer", "2026-09-05T00:00:00Z", 500000, ActivityType.EXPENSE, ""),
             Activity(4, 1, "Water Aug", "2026-08-05T00:00:00Z", 300000, ActivityType.EXPENSE, "")
         )
         val fakeDao = FakeActivityDao(sampleActivities)
@@ -95,7 +93,6 @@ class DashboardPageViewModelTest {
         viewModel.dateRangeProvider = { Pair("2026-09-01T00:00:00Z", "2026-10-01T00:00:00Z") }
 
         viewModel.onUserEvent(DashboardPageUserEvent.LoadData)
-        testDispatcher.scheduler.advanceUntilIdle()
 
         val uiState = viewModel.uiState.value
 
@@ -107,12 +104,15 @@ class DashboardPageViewModelTest {
         assertEquals(UiText.CurrencyAmount(500000L), uiState.expense)
         // Recent activities up to 3
         assertEquals(3, uiState.recentActivities.size)
+        // Verify order: newest first
+        assertEquals("Electricity Sep Newer", (uiState.recentActivities[0].activityLabel as UiText.DynamicString).value)
+        assertEquals("Salary Sep Older", (uiState.recentActivities[1].activityLabel as UiText.DynamicString).value)
         // Recent activities not empty -> showSeeMoreButton is true
         assertTrue(uiState.showSeeMoreButton)
     }
 
     @Test
-    fun loadData_withNegativeBalance_setsNegativePrefix() = runBlocking {
+    fun loadData_withNegativeBalance_setsNegativePrefix() = runTest {
         val sampleActivities = listOf(
             Activity(1, 1, "Rent", "2026-09-01T00:00:00Z", 2000000, ActivityType.EXPENSE, "")
         )
@@ -122,7 +122,6 @@ class DashboardPageViewModelTest {
         viewModel.dateRangeProvider = { Pair("2026-09-01T00:00:00Z", "2026-10-01T00:00:00Z") }
 
         viewModel.onUserEvent(DashboardPageUserEvent.LoadData)
-        testDispatcher.scheduler.advanceUntilIdle()
 
         val uiState = viewModel.uiState.value
 

@@ -34,7 +34,7 @@ class DashboardPageViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<DashboardPageUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    internal var dateRangeProvider: () -> Pair<String, String> = { DateUtil.getCurrentMonthUtcRange() }
+    internal var dateRangeProvider: () -> Pair<String, String> = { DateUtil.getLocalMonthAsUtcRange() }
 
     fun onUserEvent(userEvent: DashboardPageUserEvent) {
         when (userEvent) {

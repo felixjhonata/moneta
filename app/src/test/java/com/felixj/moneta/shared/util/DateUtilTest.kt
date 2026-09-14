@@ -8,20 +8,7 @@ import java.util.TimeZone
 class DateUtilTest {
 
     @Test
-    fun getCurrentYearMonth_returnsFormattedIsoYearMonth() {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.YEAR, 2026)
-            set(Calendar.MONTH, Calendar.SEPTEMBER)
-            set(Calendar.DAY_OF_MONTH, 14)
-        }
-
-        val result = DateUtil.getCurrentYearMonth(calendar)
-
-        assertEquals("2026-09", result)
-    }
-
-    @Test
-    fun getCurrentMonthUtcRange_inUtc_returnsFirstDayToNextMonthFirstDay() {
+    fun getLocalMonthAsUtcRange_inUtc_returnsFirstDayToNextMonthFirstDay() {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
             set(Calendar.YEAR, 2026)
             set(Calendar.MONTH, Calendar.SEPTEMBER)
@@ -29,14 +16,14 @@ class DateUtilTest {
             set(Calendar.HOUR_OF_DAY, 12)
         }
 
-        val (start, next) = DateUtil.getCurrentMonthUtcRange(calendar)
+        val (start, next) = DateUtil.getLocalMonthAsUtcRange(calendar)
 
         assertEquals("2026-09-01T00:00:00Z", start)
         assertEquals("2026-10-01T00:00:00Z", next)
     }
 
     @Test
-    fun getCurrentMonthUtcRange_inPlus7_returnsAdjustedUtcRange() {
+    fun getLocalMonthAsUtcRange_inPlus7_returnsAdjustedUtcRange() {
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+7")).apply {
             set(Calendar.YEAR, 2026)
             set(Calendar.MONTH, Calendar.SEPTEMBER)
@@ -44,23 +31,10 @@ class DateUtilTest {
             set(Calendar.HOUR_OF_DAY, 9)
         }
 
-        val (start, next) = DateUtil.getCurrentMonthUtcRange(calendar)
+        val (start, next) = DateUtil.getLocalMonthAsUtcRange(calendar)
 
         assertEquals("2026-08-31T17:00:00Z", start)
         assertEquals("2026-09-30T17:00:00Z", next)
-    }
-
-    @Test
-    fun getCurrentYearMonth_handlesSingleDigitMonth() {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.YEAR, 2026)
-            set(Calendar.MONTH, Calendar.APRIL)
-            set(Calendar.DAY_OF_MONTH, 5)
-        }
-
-        val result = DateUtil.getCurrentYearMonth(calendar)
-
-        assertEquals("2026-04", result)
     }
 
     @Test

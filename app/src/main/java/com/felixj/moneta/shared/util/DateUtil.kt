@@ -6,7 +6,6 @@ import java.util.Locale
 import java.util.TimeZone
 
 object DateUtil {
-    private const val YEAR_MONTH_PATTERN = "yyyy-MM"
     private const val DISPLAY_PATTERN = "d MMMM yyyy"
 
     private val ISO_DATE_TIME_PATTERNS = listOf(
@@ -22,12 +21,7 @@ object DateUtil {
         "yyyy-MM-dd"
     )
 
-    fun getCurrentYearMonth(calendar: Calendar = Calendar.getInstance()): String {
-        val sdf = SimpleDateFormat(YEAR_MONTH_PATTERN, Locale.US)
-        return sdf.format(calendar.time)
-    }
-
-    fun getCurrentMonthUtcRange(
+    fun getLocalMonthAsUtcRange(
         calendar: Calendar = Calendar.getInstance()
     ): Pair<String, String> {
         val startCal = (calendar.clone() as Calendar).apply {
