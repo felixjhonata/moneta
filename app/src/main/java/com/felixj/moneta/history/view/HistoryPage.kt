@@ -44,6 +44,10 @@ fun HistoryPage(
     modifier: Modifier = Modifier,
     viewModel: HistoryPageViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {

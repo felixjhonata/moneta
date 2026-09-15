@@ -1,11 +1,13 @@
 package com.felixj.moneta.dashboard.viewmodel
 
+import com.felixj.moneta.R
 import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
 import com.felixj.moneta.shared.room.dao.ActivityDao
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -25,9 +27,10 @@ class DashboardPageViewModelTest {
     private class FakeActivityDao(
         private val activities: List<Activity> = emptyList()
     ) : ActivityDao {
-        override suspend fun getActivities(limit: Int): List<Activity> {
+        override suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon> {
             val sorted = activities.sortedByDescending { it.date }
-            return if (limit < 0) sorted else sorted.take(limit)
+            val list = if (limit < 0) sorted else sorted.take(limit)
+            return list.map { ActivityWithCategoryIcon(it, R.drawable.baseline_lightbulb_24) }
         }
 
         override suspend fun getCurrentBalance(): Long {

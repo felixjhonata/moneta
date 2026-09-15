@@ -7,11 +7,20 @@ import androidx.room3.Query
 import androidx.room3.Update
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 
 @Dao
 interface ActivityDao {
-    @Query("SELECT * FROM activity ORDER BY date DESC LIMIT :limit")
-    suspend fun getActivities(limit: Int): List<Activity>
+    @Query("""
+        SELECT 
+            activity.*, 
+            category.icon AS category_icon
+        FROM activity
+        INNER JOIN category ON activity.category_id = category.id
+        ORDER BY activity.date DESC
+        LIMIT :limit
+    """)
+    suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon>
 
     @Query("SELECT COALESCE(SUM(CASE WHEN type = 'INCOME' THEN amount ELSE -amount END), 0) FROM activity")
     suspend fun getCurrentBalance(): Long

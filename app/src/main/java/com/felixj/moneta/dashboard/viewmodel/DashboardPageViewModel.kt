@@ -54,16 +54,16 @@ class DashboardPageViewModel @Inject constructor(
                         startOfNextMonth
                     )
 
-                    val recentActivityUiModels = recentActivities.map { activity ->
+                    val recentActivityUiModels = recentActivities.map { item ->
                         ActivityItemUiModel(
-                            R.drawable.baseline_lightbulb_24,
-                            UiText.DynamicString(activity.name),
-                            UiText.DynamicString(DateUtil.formatForDisplay(activity.date)),
+                            item.categoryIcon,
+                            UiText.DynamicString(item.activity.name),
+                            UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date)),
                             UiText.CurrencyAmount(
-                                amount = activity.amount,
-                                prefix = if (activity.type == ActivityType.EXPENSE) "- " else "+ "
+                                amount = item.activity.amount,
+                                prefix = if (item.activity.type == ActivityType.EXPENSE) "- " else "+ "
                             ),
-                            activity.type == ActivityType.EXPENSE
+                            item.activity.type == ActivityType.EXPENSE
                         )
                     }
 

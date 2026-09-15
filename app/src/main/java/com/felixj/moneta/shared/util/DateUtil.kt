@@ -88,4 +88,32 @@ object DateUtil {
         }
         return trimmed
     }
+
+    fun formatRelativeDate(
+        dateString: String,
+        nowCalendar: Calendar = Calendar.getInstance(),
+        targetTimeZone: TimeZone = nowCalendar.timeZone
+    ): String {
+        val formattedDate = formatForDisplay(dateString, targetTimeZone)
+        if (formattedDate.isEmpty()) return ""
+
+        val displayFormat = SimpleDateFormat(DISPLAY_PATTERN, Locale.ENGLISH).apply {
+            timeZone = targetTimeZone
+        }
+        val todayCal = (nowCalendar.clone() as Calendar).apply {
+            timeZone = targetTimeZone
+        }
+        val todayString = displayFormat.format(todayCal.time)
+
+        val yesterdayCal = (todayCal.clone() as Calendar).apply {
+            add(Calendar.DAY_OF_YEAR, -1)
+        }
+        val yesterdayString = displayFormat.format(yesterdayCal.time)
+
+        return when (formattedDate) {
+            todayString -> "Today"
+            yesterdayString -> "Yesterday"
+            else -> formattedDate
+        }
+    }
 }

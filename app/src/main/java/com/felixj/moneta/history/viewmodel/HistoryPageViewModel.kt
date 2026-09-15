@@ -9,24 +9,62 @@ import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.UiText
+import com.felixj.moneta.shared.repository.ActivityRepository
+import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
-class HistoryPageViewModel @Inject constructor(): ViewModel() {
+class HistoryPageViewModel @Inject constructor(
+    private val activityRepository: ActivityRepository
+): ViewModel() {
     private val _uiState = MutableStateFlow(HistoryPageUiState())
     val uiState = _uiState.asStateFlow()
 
     private val _uiEvent = MutableSharedFlow<HistoryPageUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
+    internal var nowCalendarProvider: () -> Calendar = { Calendar.getInstance() }
+
     fun onUserEvent(userEvent: HistoryPageUserEvent) {
         when (userEvent) {
+            HistoryPageUserEvent.LoadData -> {
+                viewModelScope.launch {
+                    val activities = activityRepository.getActivities()
+                    val sortedActivities = activities.sortedByDescending { it.activity.date }
+                    val now = nowCalendarProvider()
+                    val grouped = sortedActivities.groupBy { item ->
+                        DateUtil.formatRelativeDate(item.activity.date, now)
+                    }
+                    val historyListItems = grouped.flatMap { (header, items) ->
+                        listOf(HistoryListItemUiModel.Date(header)) + items.map { item ->
+                            HistoryListItemUiModel.ActivityItem(
+                                ActivityItemUiModel(
+                                    icon = item.categoryIcon,
+                                    activityLabel = UiText.DynamicString(item.activity.name),
+                                    activityDate = UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date, now.timeZone)),
+                                    amount = UiText.CurrencyAmount(
+                                        amount = item.activity.amount,
+                                        prefix = if (item.activity.type == ActivityType.EXPENSE) "- " else "+ "
+                                    ),
+                                    isExpense = item.activity.type == ActivityType.EXPENSE
+                                )
+                            )
+                        }
+                    }
+                    _uiState.update {
+                        it.copy(historyListItems = historyListItems)
+                    }
+                }
+            }
             is HistoryPageUserEvent.NavigateTo -> {
                 viewModelScope.launch {
                     _uiEvent.emit(

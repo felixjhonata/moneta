@@ -1,8 +1,10 @@
 package com.felixj.moneta.shared.repository
 
+import com.felixj.moneta.R
 import com.felixj.moneta.shared.room.dao.ActivityDao
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -10,17 +12,19 @@ import org.junit.Test
 class ActivityRepositoryTest {
 
     private class FakeActivityDao(
-        private val activities: List<Activity> = emptyList()
+        private val activities: List<Activity> = emptyList(),
+        private val categoryIconProvider: (Activity) -> Int = { R.drawable.baseline_lightbulb_24 }
     ) : ActivityDao {
         var lastLimitPassed: Int? = null
         var lastTypePassed: ActivityType? = null
         var lastStartOfMonthPassed: String? = null
         var lastStartOfNextMonthPassed: String? = null
 
-        override suspend fun getActivities(limit: Int): List<Activity> {
+        override suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon> {
             lastLimitPassed = limit
             val sorted = activities.sortedByDescending { it.date }
-            return if (limit < 0) sorted else sorted.take(limit)
+            val list = if (limit < 0) sorted else sorted.take(limit)
+            return list.map { ActivityWithCategoryIcon(it, categoryIconProvider(it)) }
         }
 
         override suspend fun getCurrentBalance(): Long {
@@ -60,7 +64,7 @@ class ActivityRepositoryTest {
 
         assertEquals(1, fakeDao.lastLimitPassed)
         assertEquals(1, result.size)
-        assertEquals("Salary Newer", result[0].name)
+        assertEquals("Salary Newer", result[0].activity.name)
     }
 
     @Test

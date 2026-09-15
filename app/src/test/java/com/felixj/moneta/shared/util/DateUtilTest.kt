@@ -86,4 +86,65 @@ class DateUtilTest {
 
         assertEquals("not-a-date", formatted)
     }
+
+    @Test
+    fun formatRelativeDate_today_returnsToday() {
+        val now = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            set(Calendar.YEAR, 2026)
+            set(Calendar.MONTH, Calendar.SEPTEMBER)
+            set(Calendar.DAY_OF_MONTH, 15)
+            set(Calendar.HOUR_OF_DAY, 12)
+        }
+
+        val todayDate = "2026-09-15T08:00:00Z"
+        val result = DateUtil.formatRelativeDate(todayDate, now, TimeZone.getTimeZone("UTC"))
+
+        assertEquals("Today", result)
+    }
+
+    @Test
+    fun formatRelativeDate_yesterday_returnsYesterday() {
+        val now = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            set(Calendar.YEAR, 2026)
+            set(Calendar.MONTH, Calendar.SEPTEMBER)
+            set(Calendar.DAY_OF_MONTH, 15)
+            set(Calendar.HOUR_OF_DAY, 12)
+        }
+
+        val yesterdayDate = "2026-09-14T20:00:00Z"
+        val result = DateUtil.formatRelativeDate(yesterdayDate, now, TimeZone.getTimeZone("UTC"))
+
+        assertEquals("Yesterday", result)
+    }
+
+    @Test
+    fun formatRelativeDate_olderDate_returnsFormattedDate() {
+        val now = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            set(Calendar.YEAR, 2026)
+            set(Calendar.MONTH, Calendar.SEPTEMBER)
+            set(Calendar.DAY_OF_MONTH, 15)
+            set(Calendar.HOUR_OF_DAY, 12)
+        }
+
+        val olderDate = "2026-08-04T10:00:00Z"
+        val result = DateUtil.formatRelativeDate(olderDate, now, TimeZone.getTimeZone("UTC"))
+
+        assertEquals("4 August 2026", result)
+    }
+
+    @Test
+    fun formatRelativeDate_withTimezoneShift_evaluatesCorrectDay() {
+        // 2026-09-14 23:30 UTC is 2026-09-15 06:30 in GMT+7
+        val now = Calendar.getInstance(TimeZone.getTimeZone("GMT+7")).apply {
+            set(Calendar.YEAR, 2026)
+            set(Calendar.MONTH, Calendar.SEPTEMBER)
+            set(Calendar.DAY_OF_MONTH, 15)
+            set(Calendar.HOUR_OF_DAY, 10)
+        }
+
+        val utcIso = "2026-09-14T23:30:00Z"
+        val result = DateUtil.formatRelativeDate(utcIso, now, TimeZone.getTimeZone("GMT+7"))
+
+        assertEquals("Today", result)
+    }
 }
