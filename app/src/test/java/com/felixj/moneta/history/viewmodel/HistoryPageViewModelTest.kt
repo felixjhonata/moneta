@@ -7,10 +7,15 @@ import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
-import com.felixj.moneta.shared.room.dao.ActivityDao
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.ActivityType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
+import com.felixj.moneta.shared.util.DateUtil
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -23,53 +28,31 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.Calendar
-import java.util.TimeZone
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HistoryPageViewModelTest {
 
-    private class FakeActivityDao(
-        private val activities: List<Activity> = emptyList(),
-        private val categoryIconProvider: (Activity) -> Int = {
-            if (it.type == ActivityType.EXPENSE) R.drawable.baseline_lightbulb_24 else R.drawable.baseline_account_balance_wallet_24
-        }
-    ) : ActivityDao {
-        override suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon> {
-            val sorted = activities.sortedByDescending { it.date }
-            val list = if (limit < 0) sorted else sorted.take(limit)
-            return list.map { ActivityWithCategoryIcon(it, categoryIconProvider(it)) }
-        }
-
-        override suspend fun getCurrentBalance(): Long = 0L
-
-        override suspend fun getTotalAmountByTypeAndDateRange(
-            type: ActivityType,
-            startOfMonth: String,
-            startOfNextMonth: String
-        ): Long = 0L
-
-        override suspend fun insertAll(vararg activities: Activity) {}
-        override suspend fun update(activity: Activity) {}
-        override suspend fun delete(activity: Activity) {}
-    }
+    private val repository = mockk<ActivityRepository>()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
+        mockkObject(DateUtil)
+        every { DateUtil.formatForDisplay(any(), any()) } answers { callOriginal() }
+        every { DateUtil.formatForDisplay(any()) } answers { callOriginal() }
     }
 
     @After
     fun tearDown() {
+        unmockkObject(DateUtil)
         Dispatchers.resetMain()
     }
 
     @Test
     fun loadData_withEmptyDatabase_setsEmptyList() = runTest {
-        val fakeDao = FakeActivityDao(emptyList())
-        val repository = ActivityRepository(fakeDao)
-        val viewModel = HistoryPageViewModel(repository)
+        coEvery { repository.getActivities() } returns emptyList()
 
+        val viewModel = HistoryPageViewModel(repository)
         viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
 
         val items = viewModel.uiState.value.historyListItems
@@ -79,24 +62,36 @@ class HistoryPageViewModelTest {
     @Test
     fun loadData_withActivities_groupsByDateAndInsertsSingleHeaderPerDate() = runTest {
         val sampleActivities = listOf(
-            Activity(1, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ActivityType.EXPENSE, ""),
-            Activity(2, 4, "Salary Today", "2026-09-15T08:00:00Z", 5000000, ActivityType.INCOME, ""),
-            Activity(3, 1, "Dinner Yesterday", "2026-09-14T19:00:00Z", 100000, ActivityType.EXPENSE, ""),
-            Activity(4, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ActivityType.EXPENSE, ""),
-            Activity(5, 1, "Coffee Older", "2026-08-04T09:00:00Z", 35000, ActivityType.EXPENSE, "")
+            ActivityWithCategoryIcon(
+                Activity(1, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ActivityType.EXPENSE, ""),
+                R.drawable.baseline_lightbulb_24
+            ),
+            ActivityWithCategoryIcon(
+                Activity(2, 4, "Salary Today", "2026-09-15T08:00:00Z", 5000000, ActivityType.INCOME, ""),
+                R.drawable.baseline_account_balance_wallet_24
+            ),
+            ActivityWithCategoryIcon(
+                Activity(3, 1, "Dinner Yesterday", "2026-09-14T19:00:00Z", 100000, ActivityType.EXPENSE, ""),
+                R.drawable.baseline_lightbulb_24
+            ),
+            ActivityWithCategoryIcon(
+                Activity(4, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ActivityType.EXPENSE, ""),
+                R.drawable.baseline_lightbulb_24
+            ),
+            ActivityWithCategoryIcon(
+                Activity(5, 1, "Coffee Older", "2026-08-04T09:00:00Z", 35000, ActivityType.EXPENSE, ""),
+                R.drawable.baseline_lightbulb_24
+            )
         )
-        val fakeDao = FakeActivityDao(sampleActivities)
-        val repository = ActivityRepository(fakeDao)
+        coEvery { repository.getActivities() } returns sampleActivities
+
+        every { DateUtil.formatRelativeDate(eq("2026-09-15T12:00:00Z"), any(), any()) } returns "Today"
+        every { DateUtil.formatRelativeDate(eq("2026-09-15T08:00:00Z"), any(), any()) } returns "Today"
+        every { DateUtil.formatRelativeDate(eq("2026-09-14T19:00:00Z"), any(), any()) } returns "Yesterday"
+        every { DateUtil.formatRelativeDate(eq("2026-08-04T15:00:00Z"), any(), any()) } returns "4 August 2026"
+        every { DateUtil.formatRelativeDate(eq("2026-08-04T09:00:00Z"), any(), any()) } returns "4 August 2026"
+
         val viewModel = HistoryPageViewModel(repository)
-
-        val fixedCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-            set(Calendar.YEAR, 2026)
-            set(Calendar.MONTH, Calendar.SEPTEMBER)
-            set(Calendar.DAY_OF_MONTH, 15)
-            set(Calendar.HOUR_OF_DAY, 12)
-        }
-        viewModel.nowCalendarProvider = { fixedCalendar }
-
         viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
 
         val items = viewModel.uiState.value.historyListItems
@@ -135,28 +130,21 @@ class HistoryPageViewModelTest {
     @Test
     fun loadData_withUnsortedActivities_sortsChronologicallyDescending() = runTest {
         val unsortedActivities = listOf(
-            Activity(1, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ActivityType.EXPENSE, ""),
-            Activity(2, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ActivityType.EXPENSE, "")
+            ActivityWithCategoryIcon(
+                Activity(1, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ActivityType.EXPENSE, ""),
+                R.drawable.baseline_lightbulb_24
+            ),
+            ActivityWithCategoryIcon(
+                Activity(2, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ActivityType.EXPENSE, ""),
+                R.drawable.baseline_lightbulb_24
+            )
         )
-        val rawDao = object : ActivityDao {
-            override suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon> =
-                unsortedActivities.map { ActivityWithCategoryIcon(it, R.drawable.baseline_lightbulb_24) }
-            override suspend fun getCurrentBalance(): Long = 0L
-            override suspend fun getTotalAmountByTypeAndDateRange(type: ActivityType, startOfMonth: String, startOfNextMonth: String): Long = 0L
-            override suspend fun insertAll(vararg activities: Activity) {}
-            override suspend fun update(activity: Activity) {}
-            override suspend fun delete(activity: Activity) {}
-        }
-        val repository = ActivityRepository(rawDao)
+        coEvery { repository.getActivities() } returns unsortedActivities
+
+        every { DateUtil.formatRelativeDate(eq("2026-09-15T12:00:00Z"), any(), any()) } returns "Today"
+        every { DateUtil.formatRelativeDate(eq("2026-08-04T15:00:00Z"), any(), any()) } returns "4 August 2026"
+
         val viewModel = HistoryPageViewModel(repository)
-
-        val fixedCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-            set(Calendar.YEAR, 2026)
-            set(Calendar.MONTH, Calendar.SEPTEMBER)
-            set(Calendar.DAY_OF_MONTH, 15)
-        }
-        viewModel.nowCalendarProvider = { fixedCalendar }
-
         viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
 
         val items = viewModel.uiState.value.historyListItems
@@ -169,8 +157,6 @@ class HistoryPageViewModelTest {
 
     @Test
     fun onUserEvent_navigateTo_emitsNavigationEvent() = runTest {
-        val fakeDao = FakeActivityDao(emptyList())
-        val repository = ActivityRepository(fakeDao)
         val viewModel = HistoryPageViewModel(repository)
 
         var emittedDestination: MonetaRoute? = null

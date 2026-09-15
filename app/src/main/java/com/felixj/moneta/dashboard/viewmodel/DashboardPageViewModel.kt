@@ -34,15 +34,13 @@ class DashboardPageViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<DashboardPageUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    internal var dateRangeProvider: () -> Pair<String, String> = { DateUtil.getLocalMonthAsUtcRange() }
-
     fun onUserEvent(userEvent: DashboardPageUserEvent) {
         when (userEvent) {
             DashboardPageUserEvent.LoadData -> {
                 viewModelScope.launch {
                     val recentActivities = activityRepository.getActivities(MAX_RECENT_ACTIVITY)
                     val currentBalance = activityRepository.getCurrentBalance()
-                    val (startOfMonth, startOfNextMonth) = dateRangeProvider()
+                    val (startOfMonth, startOfNextMonth) = DateUtil.getLocalMonthAsUtcRange()
                     val earnedThisMonth = activityRepository.getTotalAmountByTypeAndDateRange(
                         ActivityType.INCOME,
                         startOfMonth,

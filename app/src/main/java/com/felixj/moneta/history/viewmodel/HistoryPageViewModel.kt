@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,17 +31,14 @@ class HistoryPageViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<HistoryPageUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    internal var nowCalendarProvider: () -> Calendar = { Calendar.getInstance() }
-
     fun onUserEvent(userEvent: HistoryPageUserEvent) {
         when (userEvent) {
             HistoryPageUserEvent.LoadData -> {
                 viewModelScope.launch {
                     val activities = activityRepository.getActivities()
                     val sortedActivities = activities.sortedByDescending { it.activity.date }
-                    val now = nowCalendarProvider()
                     val grouped = sortedActivities.groupBy { item ->
-                        DateUtil.formatRelativeDate(item.activity.date, now)
+                        DateUtil.formatRelativeDate(item.activity.date)
                     }
                     val historyListItems = grouped.flatMap { (header, items) ->
                         listOf(HistoryListItemUiModel.Date(header)) + items.map { item ->
@@ -50,7 +46,7 @@ class HistoryPageViewModel @Inject constructor(
                                 ActivityItemUiModel(
                                     icon = item.categoryIcon,
                                     activityLabel = UiText.DynamicString(item.activity.name),
-                                    activityDate = UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date, now.timeZone)),
+                                    activityDate = UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date)),
                                     amount = UiText.CurrencyAmount(
                                         amount = item.activity.amount,
                                         prefix = if (item.activity.type == ActivityType.EXPENSE) "- " else "+ "
