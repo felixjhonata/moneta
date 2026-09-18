@@ -21,4 +21,7 @@ sealed interface MonetaRoute: NavKey {
 
     @Serializable
     data class ActivityDetail(val activityId: Int): MonetaRoute
+
+    @Serializable
+    data class EditActivity(val activityId: Int): MonetaRoute
 }

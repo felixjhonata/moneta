@@ -114,6 +114,37 @@ class DateUtilTest {
     }
 
     @Test
+    fun toDateInput_convertsUtcToLocalDdMmYyyy() {
+        val utcIso = "2026-09-14T08:00:00Z"
+        val formatted = DateUtil.toDateInput(utcIso, TimeZone.getTimeZone("UTC"))
+
+        assertEquals("14092026", formatted)
+    }
+
+    @Test
+    fun toDateInput_convertsUtcToOtherTimezone() {
+        // 2026-09-13 21:00 UTC is 2026-09-14 04:00 in GMT+7
+        val utcIso = "2026-09-13T21:00:00Z"
+        val formatted = DateUtil.toDateInput(utcIso, TimeZone.getTimeZone("GMT+7"))
+
+        assertEquals("14092026", formatted)
+    }
+
+    @Test
+    fun toTimeInput_convertsUtcToLocalHhMm() {
+        val utcIso = "2026-09-14T10:30:00Z"
+        val formatted = DateUtil.toTimeInput(utcIso, TimeZone.getTimeZone("UTC"))
+
+        assertEquals("1030", formatted)
+    }
+
+    @Test
+    fun toDateInput_and_toTimeInput_invalidInput_returnEmpty() {
+        assertEquals("", DateUtil.toDateInput("2026-09-14"))
+        assertEquals("", DateUtil.toTimeInput("not-a-date"))
+    }
+
+    @Test
     fun formatForDisplay_returnsOriginalOnInvalidDate() {
         val invalid = "not-a-date"
         val formatted = DateUtil.formatForDisplay(invalid)

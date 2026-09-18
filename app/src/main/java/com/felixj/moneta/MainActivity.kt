@@ -14,9 +14,11 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.felixj.moneta.activity_detail.view.ActivityDetailPage
-import com.felixj.moneta.activity_detail.viewmodel.ActivityDetailPageViewModel
-import com.felixj.moneta.add_activity.view.AddActivityPage
+import com.felixj.moneta.activity.activity_detail.view.ActivityDetailPage
+import com.felixj.moneta.activity.activity_detail.viewmodel.ActivityDetailPageViewModel
+import com.felixj.moneta.activity.add_activity.view.AddActivityPage
+import com.felixj.moneta.activity.edit_activity.view.EditActivityPage
+import com.felixj.moneta.activity.edit_activity.viewmodel.EditActivityPageViewModel
 import com.felixj.moneta.categories.view.CategoriesPage
 import com.felixj.moneta.dashboard.view.DashboardPage
 import com.felixj.moneta.history.view.HistoryPage
@@ -83,6 +85,16 @@ class MainActivity : ComponentActivity() {
                                     creationCallback = { factory -> factory.create(key) }
                                 )
                                 ActivityDetailPage(backStack, viewModel)
+                            }
+
+                            entry<MonetaRoute.EditActivity> { key ->
+                                val viewModel = hiltViewModel<
+                                        EditActivityPageViewModel,
+                                        EditActivityPageViewModel.Factory
+                                        >(
+                                    creationCallback = { factory -> factory.create(key) }
+                                )
+                                EditActivityPage(backStack, viewModel)
                             }
                         }
                     )

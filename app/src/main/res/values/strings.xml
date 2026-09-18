@@ -34,6 +34,8 @@
     <string name="date_required">Please enter a valid date</string>
     <string name="time_required">Please enter a valid time</string>
     <string name="activity_detail">Activity Detail</string>
+    <string name="edit_activity">Edit Activity</string>
+    <string name="save">Save</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="income">Income</string>

@@ -84,6 +84,26 @@ object DateUtil {
         }.format(parsed)
     }
 
+    fun toDateInput(
+        dateString: String,
+        targetTimeZone: TimeZone = TimeZone.getDefault()
+    ): String {
+        val parsed = parseIsoUtcDateTime(dateString) ?: return ""
+        return SimpleDateFormat("ddMMyyyy", Locale.US).apply {
+            timeZone = targetTimeZone
+        }.format(parsed)
+    }
+
+    fun toTimeInput(
+        dateString: String,
+        targetTimeZone: TimeZone = TimeZone.getDefault()
+    ): String {
+        val parsed = parseIsoUtcDateTime(dateString) ?: return ""
+        return SimpleDateFormat("HHmm", Locale.US).apply {
+            timeZone = targetTimeZone
+        }.format(parsed)
+    }
+
     private fun parseIsoUtcDateTime(dateString: String): Date? {
         val trimmed = dateString.trim()
         if (!trimmed.contains("T")) return null
