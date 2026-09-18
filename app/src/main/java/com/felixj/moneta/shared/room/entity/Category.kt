@@ -8,10 +8,15 @@ import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import com.felixj.moneta.shared.room.converter.CategoryIconConverter
 
+enum class CategoryType {
+    INCOME, EXPENSE
+}
+
 @Entity("category")
 data class Category(
     @PrimaryKey val id: Int,
     @ColumnInfo("name") val name: String,
     @field:ColumnTypeConverters(CategoryIconConverter::class)
-    @ColumnInfo("icon", typeAffinity = TEXT) @DrawableRes val icon: Int
+    @ColumnInfo("icon", typeAffinity = TEXT) @DrawableRes val icon: Int,
+    @ColumnInfo("type") val type: CategoryType
 )

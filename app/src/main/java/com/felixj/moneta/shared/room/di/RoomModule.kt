@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room3.Room
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.felixj.moneta.shared.room.db.MonetaDatabase
+import com.felixj.moneta.shared.room.db.MIGRATION_2_3
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +22,7 @@ object RoomModule {
     ) = Room.databaseBuilder<MonetaDatabase>(applicationContext, "moneta_db")
         .setDriver(AndroidSQLiteDriver())
         .createFromAsset("database/moneta_db.db")
+        .addMigrations(MIGRATION_2_3)
         .build()
 
     @Provides

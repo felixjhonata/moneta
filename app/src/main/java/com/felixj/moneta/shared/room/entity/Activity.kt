@@ -6,10 +6,6 @@ import androidx.room3.ForeignKey
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
-enum class ActivityType {
-    INCOME, EXPENSE
-}
-
 @Entity(
     tableName = "activity",
     foreignKeys = [
@@ -30,6 +26,5 @@ data class Activity(
     @ColumnInfo("name") val name: String,
     @ColumnInfo("date") val date: String,
     @ColumnInfo("amount") val amount: Long,
-    @ColumnInfo("type") val type: ActivityType,
     @ColumnInfo("notes") val notes: String
 )

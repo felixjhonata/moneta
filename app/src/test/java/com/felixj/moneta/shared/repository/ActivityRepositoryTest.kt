@@ -3,7 +3,7 @@ package com.felixj.moneta.shared.repository
 import com.felixj.moneta.R
 import com.felixj.moneta.shared.room.dao.ActivityDao
 import com.felixj.moneta.shared.room.entity.Activity
-import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -18,8 +18,9 @@ class ActivityRepositoryTest {
     fun getActivities_delegatesToDaoAndReturnsMostRecent() = runTest {
         val sampleActivities = listOf(
             ActivityWithCategoryIcon(
-                Activity(2, 4, "Salary Newer", "2026-09-05T00:00:00Z", 5000000, ActivityType.INCOME, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(2, 4, "Salary Newer", "2026-09-05T00:00:00Z", 5000000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.INCOME
             )
         )
         val mockDao = mockk<ActivityDao>()
@@ -50,7 +51,7 @@ class ActivityRepositoryTest {
         val mockDao = mockk<ActivityDao>()
         coEvery {
             mockDao.getTotalAmountByTypeAndDateRange(
-                ActivityType.INCOME,
+                CategoryType.INCOME,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )
@@ -58,14 +59,14 @@ class ActivityRepositoryTest {
         val repository = ActivityRepository(mockDao)
 
         val result = repository.getTotalAmountByTypeAndDateRange(
-            ActivityType.INCOME,
+            CategoryType.INCOME,
             "2026-09-01T00:00:00Z",
             "2026-10-01T00:00:00Z"
         )
 
         coVerify(exactly = 1) {
             mockDao.getTotalAmountByTypeAndDateRange(
-                ActivityType.INCOME,
+                CategoryType.INCOME,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )

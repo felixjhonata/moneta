@@ -20,4 +20,13 @@
     <string name="add_category">Add category</string>
     <string name="usd_currency_label">USD ($)</string>
     <string name="idr_currency_label">IDR (Rp)</string>
+    <string name="add_activity">Add Activity</string>
+    <string name="amount">Amount</string>
+    <string name="category">Category</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="notes">Notes</string>
+    <string name="back">Back</string>
+    <string name="calendar_month">Calendar</string>
+    <string name="access_time">Time</string>
 </resources>

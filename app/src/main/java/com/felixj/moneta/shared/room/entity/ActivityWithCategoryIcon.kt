@@ -10,5 +10,6 @@ import com.felixj.moneta.shared.room.converter.CategoryIconConverter
 data class ActivityWithCategoryIcon(
     @Embedded val activity: Activity,
     @field:ColumnTypeConverters(CategoryIconConverter::class)
-    @ColumnInfo("category_icon", typeAffinity = TEXT) @DrawableRes val categoryIcon: Int
+    @ColumnInfo("category_icon", typeAffinity = TEXT) @DrawableRes val categoryIcon: Int,
+    @ColumnInfo("category_type") val categoryType: CategoryType
 )

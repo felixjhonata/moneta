@@ -1,12 +1,12 @@
 package com.felixj.moneta.add_activity.model
 
-import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.CategoryType
 
 sealed interface AddActivityPageUserEvent {
     data object LoadData : AddActivityPageUserEvent
     data object NavigateBack : AddActivityPageUserEvent
     data class UpdateAmount(val amount: String) : AddActivityPageUserEvent
-    data class SelectActivityType(val activityType: ActivityType) : AddActivityPageUserEvent
+    data class SelectCategoryType(val categoryType: CategoryType) : AddActivityPageUserEvent
     data class SelectCategory(val categoryId: Int) : AddActivityPageUserEvent
     data class UpdateDate(val date: String) : AddActivityPageUserEvent
     data class UpdateTime(val time: String) : AddActivityPageUserEvent

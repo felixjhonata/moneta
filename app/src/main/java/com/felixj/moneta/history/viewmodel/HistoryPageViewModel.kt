@@ -10,7 +10,7 @@ import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
-import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -49,9 +49,9 @@ class HistoryPageViewModel @Inject constructor(
                                     activityDate = UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date)),
                                     amount = UiText.CurrencyAmount(
                                         amount = item.activity.amount,
-                                        prefix = if (item.activity.type == ActivityType.EXPENSE) "- " else "+ "
+                                        prefix = if (item.categoryType == CategoryType.EXPENSE) "- " else "+ "
                                     ),
-                                    isExpense = item.activity.type == ActivityType.EXPENSE
+                                    isExpense = item.categoryType == CategoryType.EXPENSE
                                 )
                             )
                         }

@@ -2,11 +2,13 @@ package com.felixj.moneta.add_activity.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.felixj.moneta.R
 import com.felixj.moneta.add_activity.model.AddActivityCategoryUiModel
 import com.felixj.moneta.add_activity.model.AddActivityPageUiEvent
 import com.felixj.moneta.add_activity.model.AddActivityPageUiState
 import com.felixj.moneta.add_activity.model.AddActivityPageUserEvent
 import com.felixj.moneta.shared.repository.CategoryRepository
+import com.felixj.moneta.shared.room.entity.CategoryType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +33,12 @@ class AddActivityPageViewModel @Inject constructor(
             AddActivityPageUserEvent.LoadData -> loadCategories()
             AddActivityPageUserEvent.NavigateBack -> emitNavigateBack()
             is AddActivityPageUserEvent.UpdateAmount -> _uiState.update { it.copy(amount = userEvent.amount) }
-            is AddActivityPageUserEvent.SelectActivityType -> _uiState.update { it.copy(activityType = userEvent.activityType) }
+            is AddActivityPageUserEvent.SelectCategoryType -> _uiState.update { state ->
+                state.copy(
+                    categoryType = userEvent.categoryType,
+                    selectedCategoryId = state.categories.firstOrNull { it.type == userEvent.categoryType }?.id
+                )
+            }
             is AddActivityPageUserEvent.SelectCategory -> _uiState.update { it.copy(selectedCategoryId = userEvent.categoryId) }
             is AddActivityPageUserEvent.UpdateDate -> _uiState.update { it.copy(date = userEvent.date) }
             is AddActivityPageUserEvent.UpdateTime -> _uiState.update { it.copy(time = userEvent.time) }
@@ -42,12 +49,12 @@ class AddActivityPageViewModel @Inject constructor(
     private fun loadCategories() {
         viewModelScope.launch {
             val categories = categoryRepository.getCategories().map {
-                AddActivityCategoryUiModel(it.id, it.icon, it.name)
+                AddActivityCategoryUiModel(it.id, it.icon, it.name, it.type)
             }
             _uiState.update {
                 it.copy(
                     categories = categories,
-                    selectedCategoryId = it.selectedCategoryId ?: categories.firstOrNull()?.id
+                    selectedCategoryId = it.selectedCategoryId ?: categories.firstOrNull { category -> category.type == it.categoryType }?.id
                 )
             }
         }
@@ -57,5 +64,28 @@ class AddActivityPageViewModel @Inject constructor(
         viewModelScope.launch {
             _uiEvent.emit(AddActivityPageUiEvent.NavigateBack)
         }
+    }
+
+    companion object {
+        fun dummyUiState() = AddActivityPageUiState(
+            amount = "1200000",
+            categoryType = CategoryType.EXPENSE,
+            categories = listOf(
+                AddActivityCategoryUiModel(1, R.drawable.baseline_fastfood_24, "Food & Drinks", CategoryType.EXPENSE),
+                AddActivityCategoryUiModel(2, R.drawable.baseline_directions_bus_24, "Transport", CategoryType.EXPENSE),
+                AddActivityCategoryUiModel(3, R.drawable.baseline_lightbulb_24, "Utilities", CategoryType.EXPENSE),
+                AddActivityCategoryUiModel(4, R.drawable.baseline_access_time_24, "Entertainment", CategoryType.EXPENSE),
+                AddActivityCategoryUiModel(5, R.drawable.baseline_history_24, "Shopping", CategoryType.EXPENSE),
+                AddActivityCategoryUiModel(6, R.drawable.baseline_account_balance_wallet_24, "Salary", CategoryType.INCOME),
+                AddActivityCategoryUiModel(7, R.drawable.baseline_directions_bus_24, "Deposit", CategoryType.INCOME),
+                AddActivityCategoryUiModel(8, R.drawable.baseline_lightbulb_24, "Investment", CategoryType.INCOME),
+                AddActivityCategoryUiModel(9, R.drawable.baseline_fastfood_24, "Gift", CategoryType.INCOME),
+                AddActivityCategoryUiModel(10, R.drawable.baseline_access_time_24, "Refund", CategoryType.INCOME)
+            ),
+            selectedCategoryId = 3,
+            date = "18092026",
+            time = "1400",
+            notes = "Makan di luar dengan keluarga"
+        )
     }
 }

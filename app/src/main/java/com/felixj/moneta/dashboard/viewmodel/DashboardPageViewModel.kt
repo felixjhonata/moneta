@@ -11,7 +11,7 @@ import com.felixj.moneta.shared.model.ActivityItemUiModel
 import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
-import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,12 +42,12 @@ class DashboardPageViewModel @Inject constructor(
                     val currentBalance = activityRepository.getCurrentBalance()
                     val (startOfMonth, startOfNextMonth) = DateUtil.getLocalMonthAsUtcRange()
                     val earnedThisMonth = activityRepository.getTotalAmountByTypeAndDateRange(
-                        ActivityType.INCOME,
+                        CategoryType.INCOME,
                         startOfMonth,
                         startOfNextMonth
                     )
                     val spentThisMonth = activityRepository.getTotalAmountByTypeAndDateRange(
-                        ActivityType.EXPENSE,
+                        CategoryType.EXPENSE,
                         startOfMonth,
                         startOfNextMonth
                     )
@@ -59,9 +59,9 @@ class DashboardPageViewModel @Inject constructor(
                             UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date)),
                             UiText.CurrencyAmount(
                                 amount = item.activity.amount,
-                                prefix = if (item.activity.type == ActivityType.EXPENSE) "- " else "+ "
+                                prefix = if (item.categoryType == CategoryType.EXPENSE) "- " else "+ "
                             ),
-                            item.activity.type == ActivityType.EXPENSE
+                            item.categoryType == CategoryType.EXPENSE
                         )
                     }
 

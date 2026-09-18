@@ -8,7 +8,7 @@ import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
 import com.felixj.moneta.shared.room.entity.Activity
-import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 import com.felixj.moneta.shared.util.DateUtil
 import io.mockk.coEvery
@@ -63,24 +63,29 @@ class HistoryPageViewModelTest {
     fun loadData_withActivities_groupsByDateAndInsertsSingleHeaderPerDate() = runTest {
         val sampleActivities = listOf(
             ActivityWithCategoryIcon(
-                Activity(1, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(1, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(2, 4, "Salary Today", "2026-09-15T08:00:00Z", 5000000, ActivityType.INCOME, ""),
-                R.drawable.baseline_account_balance_wallet_24
+                Activity(2, 4, "Salary Today", "2026-09-15T08:00:00Z", 5000000, ""),
+                R.drawable.baseline_account_balance_wallet_24,
+                CategoryType.INCOME
             ),
             ActivityWithCategoryIcon(
-                Activity(3, 1, "Dinner Yesterday", "2026-09-14T19:00:00Z", 100000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(3, 1, "Dinner Yesterday", "2026-09-14T19:00:00Z", 100000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(4, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(4, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(5, 1, "Coffee Older", "2026-08-04T09:00:00Z", 35000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(5, 1, "Coffee Older", "2026-08-04T09:00:00Z", 35000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             )
         )
         coEvery { repository.getActivities() } returns sampleActivities
@@ -131,12 +136,14 @@ class HistoryPageViewModelTest {
     fun loadData_withUnsortedActivities_sortsChronologicallyDescending() = runTest {
         val unsortedActivities = listOf(
             ActivityWithCategoryIcon(
-                Activity(1, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(1, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(2, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(2, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             )
         )
         coEvery { repository.getActivities() } returns unsortedActivities

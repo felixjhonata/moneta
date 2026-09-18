@@ -5,7 +5,7 @@ import com.felixj.moneta.dashboard.model.DashboardPageUserEvent
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
 import com.felixj.moneta.shared.room.entity.Activity
-import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 import com.felixj.moneta.shared.util.DateUtil
 import io.mockk.coEvery
@@ -52,14 +52,14 @@ class DashboardPageViewModelTest {
         coEvery { repository.getCurrentBalance() } returns 0L
         coEvery {
             repository.getTotalAmountByTypeAndDateRange(
-                ActivityType.INCOME,
+                CategoryType.INCOME,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )
         } returns 0L
         coEvery {
             repository.getTotalAmountByTypeAndDateRange(
-                ActivityType.EXPENSE,
+                CategoryType.EXPENSE,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )
@@ -81,30 +81,33 @@ class DashboardPageViewModelTest {
     fun loadData_withActivities_calculatesBalanceEarnedSpentAndShowsSeeMore() = runTest {
         val sampleRecentActivities = listOf(
             ActivityWithCategoryIcon(
-                Activity(3, 1, "Electricity Sep Newer", "2026-09-05T00:00:00Z", 500000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(3, 1, "Electricity Sep Newer", "2026-09-05T00:00:00Z", 500000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(1, 4, "Salary Sep Older", "2026-09-01T00:00:00Z", 5000000, ActivityType.INCOME, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(1, 4, "Salary Sep Older", "2026-09-01T00:00:00Z", 5000000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.INCOME
             ),
             ActivityWithCategoryIcon(
-                Activity(4, 1, "Water Aug", "2026-08-05T00:00:00Z", 300000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(4, 1, "Water Aug", "2026-08-05T00:00:00Z", 300000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             )
         )
         coEvery { repository.getActivities(3) } returns sampleRecentActivities
         coEvery { repository.getCurrentBalance() } returns 8200000L
         coEvery {
             repository.getTotalAmountByTypeAndDateRange(
-                ActivityType.INCOME,
+                CategoryType.INCOME,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )
         } returns 5000000L
         coEvery {
             repository.getTotalAmountByTypeAndDateRange(
-                ActivityType.EXPENSE,
+                CategoryType.EXPENSE,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )
@@ -128,22 +131,23 @@ class DashboardPageViewModelTest {
     fun loadData_withNegativeBalance_setsNegativePrefix() = runTest {
         val sampleActivities = listOf(
             ActivityWithCategoryIcon(
-                Activity(1, 1, "Rent", "2026-09-01T00:00:00Z", 2000000, ActivityType.EXPENSE, ""),
-                R.drawable.baseline_lightbulb_24
+                Activity(1, 1, "Rent", "2026-09-01T00:00:00Z", 2000000, ""),
+                R.drawable.baseline_lightbulb_24,
+                CategoryType.EXPENSE
             )
         )
         coEvery { repository.getActivities(3) } returns sampleActivities
         coEvery { repository.getCurrentBalance() } returns -2000000L
         coEvery {
             repository.getTotalAmountByTypeAndDateRange(
-                ActivityType.INCOME,
+                CategoryType.INCOME,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )
         } returns 0L
         coEvery {
             repository.getTotalAmountByTypeAndDateRange(
-                ActivityType.EXPENSE,
+                CategoryType.EXPENSE,
                 "2026-09-01T00:00:00Z",
                 "2026-10-01T00:00:00Z"
             )

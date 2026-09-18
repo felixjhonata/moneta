@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
@@ -49,7 +50,7 @@ import com.felixj.moneta.add_activity.model.AddActivityPageUiState
 import com.felixj.moneta.add_activity.model.AddActivityPageUserEvent
 import com.felixj.moneta.add_activity.viewmodel.AddActivityPageViewModel
 import com.felixj.moneta.shared.model.UiText
-import com.felixj.moneta.shared.room.entity.ActivityType
+import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.util.goBack
 import com.felixj.moneta.shared.util.rememberCurrencyAmountInputVisualTransformation
 import com.felixj.moneta.shared.util.rememberDateInputVisualTransformation
@@ -97,12 +98,12 @@ private fun AddActivityPageContent(
                     IconButton({ onUserEvent(AddActivityPageUserEvent.NavigateBack) }) {
                         Icon(
                             painterResource(R.drawable.baseline_arrow_back_24),
-                            "back"
+                            stringResource(R.string.back)
                         )
                     }
 
                     Text(
-                        "Add Activity",
+                        stringResource(R.string.add_activity),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -117,7 +118,7 @@ private fun AddActivityPageContent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "Amount",
+                        stringResource(R.string.amount),
                         style = MaterialTheme.typography.labelLarge
                     )
 
@@ -135,7 +136,10 @@ private fun AddActivityPageContent(
                             { rawValue ->
                                 onUserEvent(AddActivityPageUserEvent.UpdateAmount(rawValue.filter { it.isDigit() }))
                             },
-                            textStyle = MaterialTheme.typography.headlineLarge.copy(textAlign = TextAlign.Center),
+                            textStyle = MaterialTheme.typography.headlineLarge.copy(
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurface
+                            ),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             visualTransformation = rememberCurrencyAmountInputVisualTransformation()
                         )
@@ -151,17 +155,23 @@ private fun AddActivityPageContent(
                         .background(MaterialTheme.colorScheme.surfaceDim)
                 ) {
                     Row(Modifier.fillMaxWidth()) {
-                        ActivityType.entries.forEach { activityType ->
+                        CategoryType.entries.forEach { categoryType ->
                             Card(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp),
-                                onClick = { onUserEvent(AddActivityPageUserEvent.SelectActivityType(activityType)) },
+                                onClick = {
+                                    onUserEvent(
+                                        AddActivityPageUserEvent.SelectCategoryType(
+                                            categoryType
+                                        )
+                                    )
+                                },
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (activityType == uiState.activityType) MaterialTheme.colorScheme.primary else Color.Transparent
+                                    containerColor = if (categoryType == uiState.categoryType) MaterialTheme.colorScheme.primary else Color.Transparent
                                 )
                             ) {
                                 Text(
-                                    activityType.name,
+                                    categoryType.name,
                                     modifier = Modifier
                                         .padding(12.dp)
                                         .fillMaxWidth(),
@@ -175,7 +185,7 @@ private fun AddActivityPageContent(
 
             item {
                 Text(
-                    "Category",
+                    stringResource(R.string.category),
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -186,25 +196,32 @@ private fun AddActivityPageContent(
                     Modifier.padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    uiState.categories.chunked(5).forEach { categories ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            categories.forEach { category ->
-                                CategoryCard(
-                                    category,
-                                    category.id == uiState.selectedCategoryId,
-                                    { onUserEvent(AddActivityPageUserEvent.SelectCategory(category.id)) },
-                                    Modifier.weight(1f)
-                                )
-                            }
+                    uiState.categories.filter { it.type == uiState.categoryType }.chunked(5)
+                        .forEach { categories ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                categories.forEach { category ->
+                                    CategoryCard(
+                                        category,
+                                        category.id == uiState.selectedCategoryId,
+                                        {
+                                            onUserEvent(
+                                                AddActivityPageUserEvent.SelectCategory(
+                                                    category.id
+                                                )
+                                            )
+                                        },
+                                        Modifier.weight(1f)
+                                    )
+                                }
 
-                            repeat(5 - categories.size) {
-                                Spacer(Modifier.weight(1f))
+                                repeat(5 - categories.size) {
+                                    Spacer(Modifier.weight(1f))
+                                }
                             }
                         }
-                    }
                 }
             }
 
@@ -212,28 +229,34 @@ private fun AddActivityPageContent(
                 Spacer(Modifier.height(12.dp))
 
                 Row(
-                    modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Bottom
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
                         value = uiState.date,
                         onValueChange = { rawValue ->
-                            onUserEvent(AddActivityPageUserEvent.UpdateDate(rawValue.filter { it.isDigit() }.take(8)))
+                            onUserEvent(AddActivityPageUserEvent.UpdateDate(rawValue.filter { it.isDigit() }
+                                .take(8)))
                         },
                         modifier = Modifier.weight(1f),
-                        label = { Text("Date") },
+                        label = { Text(stringResource(R.string.date)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         visualTransformation = rememberDateInputVisualTransformation()
                     )
 
                     Card(
-                        modifier = Modifier.size(58.dp)
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .size(56.dp)
                     ) {
                         Icon(
                             painterResource(R.drawable.baseline_calendar_month_24),
-                            "calendar_month",
-                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxHeight()
+                            stringResource(R.string.calendar_month),
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .fillMaxHeight()
                         )
                     }
                 }
@@ -243,28 +266,34 @@ private fun AddActivityPageContent(
                 Spacer(Modifier.height(12.dp))
 
                 Row(
-                    modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Bottom
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
                         value = uiState.time,
                         onValueChange = { rawValue ->
-                            onUserEvent(AddActivityPageUserEvent.UpdateTime(rawValue.filter { it.isDigit() }.take(4)))
+                            onUserEvent(AddActivityPageUserEvent.UpdateTime(rawValue.filter { it.isDigit() }
+                                .take(4)))
                         },
                         modifier = Modifier.weight(1f),
-                        label = { Text("Time") },
+                        label = { Text(stringResource(R.string.time)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         visualTransformation = rememberTimeInputVisualTransformation()
                     )
 
                     Card(
-                        modifier = Modifier.size(58.dp)
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .size(56.dp)
                     ) {
                         Icon(
                             painterResource(R.drawable.baseline_access_time_24),
-                            "access_time",
-                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxHeight()
+                            stringResource(R.string.access_time),
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .fillMaxHeight()
                         )
                     }
                 }
@@ -276,8 +305,10 @@ private fun AddActivityPageContent(
                 OutlinedTextField(
                     uiState.notes,
                     { onUserEvent(AddActivityPageUserEvent.UpdateNotes(it)) },
-                    modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth(),
-                    label = { Text("Notes") },
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    label = { Text(stringResource(R.string.notes)) },
                     minLines = 4
                 )
             }
@@ -289,7 +320,7 @@ private fun AddActivityPageContent(
                         .padding(horizontal = 24.dp, vertical = 12.dp)
                         .fillMaxWidth()
                 ) {
-                    Text("Add Activity")
+                    Text(stringResource(R.string.add_activity))
                 }
             }
         }
@@ -310,7 +341,9 @@ private fun CategoryCard(
     ) {
         Card(
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f),
             colors = CardDefaults.cardColors(
                 containerColor = if (selected) MaterialTheme.colorScheme.primary else Color.Unspecified
             )
@@ -318,7 +351,9 @@ private fun CategoryCard(
             Icon(
                 painterResource(category.icon),
                 null,
-                modifier = Modifier.fillMaxHeight().align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .align(Alignment.CenterHorizontally)
             )
         }
 
@@ -336,7 +371,12 @@ private fun CategoryCard(
 )
 @Composable
 private fun AddActivityPagePreview() {
-    MonetaTheme { AddActivityPageContent(AddActivityPageUiState(), {}) }
+    MonetaTheme {
+        AddActivityPageContent(
+            AddActivityPageViewModel.dummyUiState(),
+            {}
+        )
+    }
 }
 
 @Preview(
@@ -346,5 +386,10 @@ private fun AddActivityPagePreview() {
 )
 @Composable
 private fun AddActivityPagePreviewDarkMode() {
-    MonetaTheme { AddActivityPageContent(AddActivityPageUiState(), {}) }
+    MonetaTheme {
+        AddActivityPageContent(
+            AddActivityPageViewModel.dummyUiState(),
+            {}
+        )
+    }
 }
