@@ -19,12 +19,20 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog as MaterialDatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog as MaterialTimePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +54,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
 import com.felixj.moneta.add_activity.model.AddActivityCategoryUiModel
+import com.felixj.moneta.add_activity.model.AddActivityPageDialog
 import com.felixj.moneta.add_activity.model.AddActivityPageUiEvent
 import com.felixj.moneta.add_activity.model.AddActivityPageUiState
 import com.felixj.moneta.add_activity.model.AddActivityPageUserEvent
@@ -56,6 +66,9 @@ import com.felixj.moneta.shared.util.rememberCurrencyAmountInputVisualTransforma
 import com.felixj.moneta.shared.util.rememberDateInputVisualTransformation
 import com.felixj.moneta.shared.util.rememberTimeInputVisualTransformation
 import com.felixj.moneta.ui.theme.MonetaTheme
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun AddActivityPage(
@@ -86,7 +99,6 @@ private fun AddActivityPageContent(
     onUserEvent: (AddActivityPageUserEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Scaffold(modifier) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
             item {
@@ -226,77 +238,31 @@ private fun AddActivityPageContent(
             }
 
             item {
-                Spacer(Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = uiState.date,
-                        onValueChange = { rawValue ->
-                            onUserEvent(AddActivityPageUserEvent.UpdateDate(rawValue.filter { it.isDigit() }
-                                .take(8)))
-                        },
-                        modifier = Modifier.weight(1f),
-                        label = { Text(stringResource(R.string.date)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        visualTransformation = rememberDateInputVisualTransformation()
-                    )
-
-                    Card(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .size(56.dp)
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.baseline_calendar_month_24),
-                            stringResource(R.string.calendar_month),
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .fillMaxHeight()
-                        )
-                    }
-                }
+                DateTimeInputField(
+                    uiState.date,
+                    { rawValue ->
+                        onUserEvent(AddActivityPageUserEvent.UpdateDate(rawValue.filter { it.isDigit() }
+                            .take(8)))
+                    },
+                    R.string.date,
+                    rememberDateInputVisualTransformation(),
+                    R.drawable.baseline_calendar_month_24,
+                    onIconClick = { onUserEvent(AddActivityPageUserEvent.ShowDatePicker) }
+                )
             }
 
             item {
-                Spacer(Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = uiState.time,
-                        onValueChange = { rawValue ->
-                            onUserEvent(AddActivityPageUserEvent.UpdateTime(rawValue.filter { it.isDigit() }
-                                .take(4)))
-                        },
-                        modifier = Modifier.weight(1f),
-                        label = { Text(stringResource(R.string.time)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        visualTransformation = rememberTimeInputVisualTransformation()
-                    )
-
-                    Card(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .size(56.dp)
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.baseline_access_time_24),
-                            stringResource(R.string.access_time),
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .fillMaxHeight()
-                        )
-                    }
-                }
+                DateTimeInputField(
+                    uiState.time,
+                    { rawValue ->
+                        onUserEvent(AddActivityPageUserEvent.UpdateTime(rawValue.filter { it.isDigit() }
+                            .take(4)))
+                    },
+                    R.string.time,
+                    rememberTimeInputVisualTransformation(),
+                    R.drawable.baseline_access_time_24,
+                    onIconClick = { onUserEvent(AddActivityPageUserEvent.ShowTimePicker) }
+                )
             }
 
             item {
@@ -323,6 +289,140 @@ private fun AddActivityPageContent(
                     Text(stringResource(R.string.add_activity))
                 }
             }
+        }
+
+        when (uiState.dialog) {
+            AddActivityPageDialog.None -> Unit
+            AddActivityPageDialog.DatePickerDialog -> DatePickerDialog(
+                initialDate = uiState.date,
+                onConfirm = { onUserEvent(AddActivityPageUserEvent.UpdateDate(it)) },
+                onDismiss = { onUserEvent(AddActivityPageUserEvent.DismissDialog) }
+            )
+            AddActivityPageDialog.TimePickerDialog -> TimePickerDialog(
+                initialTime = uiState.time,
+                onConfirm = { onUserEvent(AddActivityPageUserEvent.UpdateTime(it)) },
+                onDismiss = { onUserEvent(AddActivityPageUserEvent.DismissDialog) }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatePickerDialog(
+    initialDate: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialDate.toUtcMillisOrNull()
+            ?: System.currentTimeMillis()
+    )
+    MaterialDatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { onConfirm(it.toDateString()) }
+                    onDismiss()
+                }
+            ) {
+                Text(stringResource(R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimePickerDialog(
+    initialTime: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val now = Calendar.getInstance()
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialTime.take(2).toIntOrNull() ?: now.get(Calendar.HOUR_OF_DAY),
+        initialMinute = initialTime.drop(2).take(2).toIntOrNull() ?: now.get(Calendar.MINUTE),
+        is24Hour = true
+    )
+    MaterialTimePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(
+                        String.format(
+                            Locale.US,
+                            "%02d%02d",
+                            timePickerState.hour,
+                            timePickerState.minute
+                        )
+                    )
+                    onDismiss()
+                }
+            ) {
+                Text(stringResource(R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        },
+        title = { Text(stringResource(R.string.time)) }
+    ) {
+        TimePicker(state = timePickerState)
+    }
+}
+
+@Composable
+private fun DateTimeInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    labelRes: Int,
+    visualTransformation: VisualTransformation,
+    iconRes: Int,
+    onIconClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Spacer(Modifier.height(12.dp))
+
+    Row(
+        modifier = modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.weight(1f),
+            label = { Text(stringResource(labelRes)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            visualTransformation = visualTransformation
+        )
+
+        Card(
+            onClick = onIconClick,
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .size(56.dp)
+        ) {
+            Icon(
+                painterResource(iconRes),
+                null,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxHeight()
+            )
         }
     }
 }
@@ -392,4 +492,38 @@ private fun AddActivityPagePreviewDarkMode() {
             {}
         )
     }
+}
+
+private fun String.toUtcMillisOrNull(): Long? {
+    if (length != 8) return null
+    return try {
+        val calendar = Calendar.getInstance().apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+            isLenient = false
+            set(Calendar.YEAR, substring(4, 8).toInt())
+            set(Calendar.MONTH, substring(2, 4).toInt() - 1)
+            set(Calendar.DAY_OF_MONTH, substring(0, 2).toInt())
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        calendar.timeInMillis
+    } catch (_: Exception) {
+        null
+    }
+}
+
+private fun Long.toDateString(): String {
+    val calendar = Calendar.getInstance().apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+        timeInMillis = this@toDateString
+    }
+    return String.format(
+        Locale.US,
+        "%02d%02d%04d",
+        calendar.get(Calendar.DAY_OF_MONTH),
+        calendar.get(Calendar.MONTH) + 1,
+        calendar.get(Calendar.YEAR)
+    )
 }

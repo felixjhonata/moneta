@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixj.moneta.R
 import com.felixj.moneta.add_activity.model.AddActivityCategoryUiModel
+import com.felixj.moneta.add_activity.model.AddActivityPageDialog
 import com.felixj.moneta.add_activity.model.AddActivityPageUiEvent
 import com.felixj.moneta.add_activity.model.AddActivityPageUiState
 import com.felixj.moneta.add_activity.model.AddActivityPageUserEvent
@@ -43,6 +44,9 @@ class AddActivityPageViewModel @Inject constructor(
             is AddActivityPageUserEvent.UpdateDate -> _uiState.update { it.copy(date = userEvent.date) }
             is AddActivityPageUserEvent.UpdateTime -> _uiState.update { it.copy(time = userEvent.time) }
             is AddActivityPageUserEvent.UpdateNotes -> _uiState.update { it.copy(notes = userEvent.notes) }
+            AddActivityPageUserEvent.ShowDatePicker -> _uiState.update { it.copy(dialog = AddActivityPageDialog.DatePickerDialog) }
+            AddActivityPageUserEvent.ShowTimePicker -> _uiState.update { it.copy(dialog = AddActivityPageDialog.TimePickerDialog) }
+            AddActivityPageUserEvent.DismissDialog -> _uiState.update { it.copy(dialog = AddActivityPageDialog.None) }
         }
     }
 

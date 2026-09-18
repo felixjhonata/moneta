@@ -9,7 +9,7 @@ import androidx.room3.PrimaryKey
 import com.felixj.moneta.shared.room.converter.CategoryIconConverter
 
 enum class CategoryType {
-    INCOME, EXPENSE
+    EXPENSE, INCOME
 }
 
 @Entity("category")

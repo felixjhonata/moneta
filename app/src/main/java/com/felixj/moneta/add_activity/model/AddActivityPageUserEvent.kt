@@ -11,4 +11,7 @@ sealed interface AddActivityPageUserEvent {
     data class UpdateDate(val date: String) : AddActivityPageUserEvent
     data class UpdateTime(val time: String) : AddActivityPageUserEvent
     data class UpdateNotes(val notes: String) : AddActivityPageUserEvent
+    data object ShowDatePicker : AddActivityPageUserEvent
+    data object ShowTimePicker : AddActivityPageUserEvent
+    data object DismissDialog : AddActivityPageUserEvent
 }

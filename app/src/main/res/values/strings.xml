@@ -27,6 +27,6 @@
     <string name="time">Time</string>
     <string name="notes">Notes</string>
     <string name="back">Back</string>
-    <string name="calendar_month">Calendar</string>
-    <string name="access_time">Time</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>
