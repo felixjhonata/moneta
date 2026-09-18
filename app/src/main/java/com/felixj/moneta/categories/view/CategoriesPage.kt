@@ -18,6 +18,8 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,26 +28,50 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
-import com.felixj.moneta.settings.model.CategoryUiModel
+import com.felixj.moneta.categories.model.CategoriesPageUiEvent
+import com.felixj.moneta.categories.model.CategoriesPageUiState
+import com.felixj.moneta.categories.model.CategoriesPageUserEvent
+import com.felixj.moneta.categories.viewmodel.CategoriesPageViewModel
+import com.felixj.moneta.shared.util.goBack
 import com.felixj.moneta.shared.view.CategoriesGrid
 import com.felixj.moneta.ui.theme.MonetaTheme
 
 @Composable
-fun CategoriesPage(modifier: Modifier = Modifier) {
+fun CategoriesPage(
+    backStack: NavBackStack<NavKey>,
+    modifier: Modifier = Modifier,
+    viewModel: CategoriesPageViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        viewModel.onUserEvent(CategoriesPageUserEvent.LoadData)
+    }
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { uiEvent ->
+            when (uiEvent) {
+                CategoriesPageUiEvent.NavigateBack -> backStack.goBack()
+            }
+        }
+    }
+
     CategoriesPageContent(
-        dummyCategories(),
-        {},
-        {},
+        uiState,
+        viewModel::onUserEvent,
         modifier
     )
 }
 
 @Composable
 fun CategoriesPageContent(
-    categories: List<CategoryUiModel>,
-    onAddCategory: () -> Unit,
-    onBack: () -> Unit,
+    uiState: CategoriesPageUiState,
+    onUserEvent: (CategoriesPageUserEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(modifier) { innerPadding ->
@@ -56,7 +82,7 @@ fun CategoriesPageContent(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onBack) {
+                    IconButton({ onUserEvent(CategoriesPageUserEvent.NavigateBack) }) {
                         Icon(
                             painterResource(R.drawable.baseline_arrow_back_24),
                             stringResource(R.string.back)
@@ -74,11 +100,11 @@ fun CategoriesPageContent(
 
             item("category_grid") {
                 CategoriesGrid(
-                    categories,
+                    uiState.categories,
                     Modifier
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth(),
-                    trailingCell = { AddCategoryCard(onAddCategory, it) }
+                    trailingCell = { AddCategoryCard({}, it) }
                 )
             }
         }
@@ -124,7 +150,7 @@ private fun AddCategoryCard(
 @Composable
 private fun CategoriesPageContentPreview() {
     MonetaTheme {
-        CategoriesPageContent(dummyCategories(), {}, {})
+        CategoriesPageContent(CategoriesPageViewModel.dummyUiState(), {})
     }
 }
 
@@ -136,7 +162,7 @@ private fun CategoriesPageContentPreview() {
 @Composable
 private fun CategoriesPageContentDarkModePreview() {
     MonetaTheme {
-        CategoriesPageContent(dummyCategories(), {}, {})
+        CategoriesPageContent(CategoriesPageViewModel.dummyUiState(), {})
     }
 }
 
@@ -147,14 +173,6 @@ private fun CategoriesPageContentDarkModePreview() {
 @Composable
 private fun EmptyCategoriesPageContentPreview() {
     MonetaTheme {
-        CategoriesPageContent(emptyList(), {}, {})
+        CategoriesPageContent(CategoriesPageUiState(emptyList()), {})
     }
 }
-
-private fun dummyCategories() = listOf(
-    CategoryUiModel(R.drawable.baseline_lightbulb_24, "Utilities", true),
-    CategoryUiModel(R.drawable.baseline_fastfood_24, "Food", true),
-    CategoryUiModel(R.drawable.baseline_directions_bus_24, "Transport", true),
-    CategoryUiModel(R.drawable.baseline_account_balance_wallet_24, "Salary", false),
-    CategoryUiModel(R.drawable.baseline_home_filled_24, "Home", true)
-)

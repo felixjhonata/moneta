@@ -38,7 +38,7 @@ fun CategoriesGrid(
                     CategoryCard(category, Modifier.weight(1f))
                 }
 
-                if (index == rows.lastIndex && trailingCell != null) {
+                if (rows.last().size != 2 && index == rows.lastIndex && trailingCell != null) {
                     trailingCell(Modifier.weight(1f))
                 } else if (row.size == 1) {
                     Spacer(Modifier.weight(1f))

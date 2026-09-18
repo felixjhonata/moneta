@@ -39,6 +39,7 @@ import com.felixj.moneta.settings.model.SettingsPageUiEvent
 import com.felixj.moneta.settings.model.SettingsPageUiState
 import com.felixj.moneta.settings.model.SettingsPageUserEvent
 import com.felixj.moneta.settings.viewmodel.SettingsPageViewModel
+import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
@@ -102,7 +103,7 @@ private fun SettingsPageContent(
                 )
             }
 
-            buildCategoriesSection(uiState.categories, uiState.showSeeMoreButton)
+            buildCategoriesSection(uiState.categories, uiState.showSeeMoreButton, onUserEvent)
 
             buildPersonalizationSection(
                 uiState.useSystemTheme,
@@ -118,7 +119,8 @@ private fun SettingsPageContent(
 
 private fun LazyListScope.buildCategoriesSection(
     categories: List<CategoryUiModel>,
-    showSeeMoreButton: Boolean
+    showSeeMoreButton: Boolean,
+    onUserEvent: (SettingsPageUserEvent) -> Unit
 ) {
     item {
         Text(
@@ -161,7 +163,7 @@ private fun LazyListScope.buildCategoriesSection(
                 CategoriesGrid(categories)
 
                 if (showSeeMoreButton) SeeMoreButton(
-                    {},
+                    { onUserEvent(SettingsPageUserEvent.NavigateTo(MonetaRoute.Categories)) },
                     Modifier.align(Alignment.CenterHorizontally)
                 )
             }
