@@ -23,16 +23,19 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.util.TimeZone
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddActivityPageViewModelTest {
 
     private val categoryRepository = mockk<CategoryRepository>()
     private val activityRepository = mockk<ActivityRepository>()
+    private val originalTimeZone = TimeZone.getDefault()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
         coEvery { categoryRepository.getCategories() } returns listOf(
             Category(1, "Food & Drinks", R.drawable.baseline_fastfood_24, CategoryType.EXPENSE),
             Category(2, "Salary", R.drawable.baseline_account_balance_wallet_24, CategoryType.INCOME)
@@ -41,6 +44,7 @@ class AddActivityPageViewModelTest {
 
     @After
     fun tearDown() {
+        TimeZone.setDefault(originalTimeZone)
         Dispatchers.resetMain()
     }
 
@@ -70,6 +74,28 @@ class AddActivityPageViewModelTest {
             )
         }
         assertTrue(emittedNavigateBack)
+    }
+
+    @Test
+    fun submit_convertsLocalInputToUtcBeforeStoring() = runTest {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+7"))
+        coEvery { activityRepository.getNextActivityId() } returns 99
+        coEvery { activityRepository.insertActivity(any()) } returns Unit
+
+        val viewModel = AddActivityPageViewModel(categoryRepository, activityRepository)
+
+        viewModel.onUserEvent(AddActivityPageUserEvent.LoadData)
+        viewModel.onUserEvent(AddActivityPageUserEvent.UpdateAmount("1200000"))
+        viewModel.onUserEvent(AddActivityPageUserEvent.UpdateDate("18092026"))
+        viewModel.onUserEvent(AddActivityPageUserEvent.UpdateTime("1400"))
+        viewModel.onUserEvent(AddActivityPageUserEvent.Submit)
+
+        // 14:00 in GMT+7 is 07:00 UTC
+        coVerify(exactly = 1) {
+            activityRepository.insertActivity(
+                Activity(99, 1, "Food & Drinks", "2026-09-18T07:00:00Z", 1200000, "")
+            )
+        }
     }
 
     @Test

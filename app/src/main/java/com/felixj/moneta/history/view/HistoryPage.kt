@@ -133,6 +133,11 @@ private fun HistoryPageContent(
                         is HistoryListItemUiModel.ActivityItem -> {
                             ActivityItem(
                                 item.itemUiModel,
+                                onClick = {
+                                    onUserEvent(
+                                        HistoryPageUserEvent.ActivityItemClick(item.itemUiModel.activityId)
+                                    )
+                                },
                                 modifier = Modifier.padding(horizontal = 24.dp)
                             )
                         }

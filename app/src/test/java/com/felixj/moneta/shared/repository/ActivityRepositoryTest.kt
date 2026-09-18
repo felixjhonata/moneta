@@ -47,6 +47,24 @@ class ActivityRepositoryTest {
     }
 
     @Test
+    fun getActivity_delegatesToDao() = runTest {
+        val sampleActivity = ActivityWithCategoryIcon(
+            Activity(5, 3, "Electricity Bills", "2026-09-05T14:00:00Z", 1200000, "note"),
+            R.drawable.baseline_lightbulb_24,
+            CategoryType.EXPENSE
+        )
+        val mockDao = mockk<ActivityDao>()
+        coEvery { mockDao.getActivityById(5) } returns sampleActivity
+        val repository = ActivityRepository(mockDao)
+
+        val result = repository.getActivity(5)
+
+        coVerify(exactly = 1) { mockDao.getActivityById(5) }
+        assertEquals(5, result?.activity?.id)
+        assertEquals("Electricity Bills", result?.activity?.name)
+    }
+
+    @Test
     fun getTotalAmountByTypeAndDateRange_delegatesToDao() = runTest {
         val mockDao = mockk<ActivityDao>()
         coEvery {

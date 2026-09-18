@@ -8,6 +8,7 @@ import com.felixj.moneta.history.model.HistoryPageUiEvent
 import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.shared.model.ActivityItemUiModel
+import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.repository.ActivityRepository
 import com.felixj.moneta.shared.room.entity.CategoryType
@@ -42,8 +43,9 @@ class HistoryPageViewModel @Inject constructor(
                     }
                     val historyListItems = grouped.flatMap { (header, items) ->
                         listOf(HistoryListItemUiModel.Date(header)) + items.map { item ->
-                            HistoryListItemUiModel.ActivityItem(
+HistoryListItemUiModel.ActivityItem(
                                 ActivityItemUiModel(
+                                    activityId = item.activity.id,
                                     icon = item.categoryIcon,
                                     activityLabel = UiText.DynamicString(item.activity.name),
                                     activityDate = UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date)),
@@ -67,6 +69,12 @@ class HistoryPageViewModel @Inject constructor(
                         HistoryPageUiEvent.NavigateTo(userEvent.destination))
                 }
             }
+            is HistoryPageUserEvent.ActivityItemClick -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        HistoryPageUiEvent.NavigateTo(MonetaRoute.ActivityDetail(userEvent.activityId)))
+                }
+            }
         }
     }
 
@@ -76,6 +84,7 @@ class HistoryPageViewModel @Inject constructor(
                 HistoryListItemUiModel.Date("Today"),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        1,
                         R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Electricity Bills"),
                         UiText.DynamicString("4 September 2026"),
@@ -85,6 +94,7 @@ class HistoryPageViewModel @Inject constructor(
                 ),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        2,
                         R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Water Bills"),
                         UiText.DynamicString("4 September 2026"),
@@ -94,6 +104,7 @@ class HistoryPageViewModel @Inject constructor(
                 ),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        3,
                         R.drawable.baseline_account_balance_wallet_24,
                         UiText.DynamicString("Salary"),
                         UiText.DynamicString("4 September 2026"),
@@ -104,6 +115,7 @@ class HistoryPageViewModel @Inject constructor(
                 HistoryListItemUiModel.Date("Yesterday"),
                 HistoryListItemUiModel.ActivityItem(
                     ActivityItemUiModel(
+                        4,
                         R.drawable.baseline_lightbulb_24,
                         UiText.DynamicString("Phone Bills"),
                         UiText.DynamicString("3 September 2026"),

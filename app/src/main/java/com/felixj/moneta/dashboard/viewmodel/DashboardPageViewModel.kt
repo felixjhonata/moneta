@@ -54,6 +54,7 @@ class DashboardPageViewModel @Inject constructor(
 
                     val recentActivityUiModels = recentActivities.map { item ->
                         ActivityItemUiModel(
+                            item.activity.id,
                             item.categoryIcon,
                             UiText.DynamicString(item.activity.name),
                             UiText.DynamicString(DateUtil.formatForDisplay(item.activity.date)),
@@ -95,6 +96,14 @@ class DashboardPageViewModel @Inject constructor(
                     )
                 }
             }
+
+            is DashboardPageUserEvent.ActivityItemClick -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(
+                        NavigateTo(MonetaRoute.ActivityDetail(userEvent.activityId))
+                    )
+                }
+            }
         }
     }
 
@@ -105,6 +114,7 @@ class DashboardPageViewModel @Inject constructor(
             UiText.CurrencyAmount(800000),
             listOf(
                 ActivityItemUiModel(
+                    1,
                     R.drawable.baseline_lightbulb_24,
                     UiText.DynamicString("Electricity Bills"),
                     UiText.DynamicString("12 April 2026"),
@@ -112,6 +122,7 @@ class DashboardPageViewModel @Inject constructor(
                     true
                 ),
                 ActivityItemUiModel(
+                    2,
                     R.drawable.baseline_lightbulb_24,
                     UiText.DynamicString("Water Bills"),
                     UiText.DynamicString("12 April 2026"),
@@ -119,6 +130,7 @@ class DashboardPageViewModel @Inject constructor(
                     true
                 ),
                 ActivityItemUiModel(
+                    3,
                     R.drawable.baseline_account_balance_wallet_24,
                     UiText.DynamicString("Salary"),
                     UiText.DynamicString("10 April 2026"),

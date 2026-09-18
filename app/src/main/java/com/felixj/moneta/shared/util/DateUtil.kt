@@ -2,6 +2,7 @@ package com.felixj.moneta.shared.util
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -50,43 +51,55 @@ object DateUtil {
         val trimmed = dateString.trim()
         if (trimmed.isEmpty()) return ""
 
-        val utcTimeZone = TimeZone.getTimeZone("UTC")
+        val parsed =  parseIsoUtcDateTime(trimmed)
+        if (parsed != null) {
+            return SimpleDateFormat(DISPLAY_PATTERN, Locale.ENGLISH).apply {
+                timeZone = targetTimeZone
+            }.format(parsed)
+        }
 
-        if (trimmed.contains("T")) {
-            for (pattern in ISO_DATE_TIME_PATTERNS) {
-                try {
-                    val sdf = SimpleDateFormat(pattern, Locale.US).apply {
-                        timeZone = utcTimeZone
-                        isLenient = false
-                    }
-                    val parsed = sdf.parse(trimmed)
-                    if (parsed != null) {
-                        val displayFormat = SimpleDateFormat(DISPLAY_PATTERN, Locale.ENGLISH).apply {
-                            timeZone = targetTimeZone
-                        }
-                        return displayFormat.format(parsed)
-                    }
-                } catch (_: Exception) {
-                    // Try next pattern
+        for (pattern in ISO_DATE_PATTERNS) {
+            try {
+                val sdf = SimpleDateFormat(pattern, Locale.US).apply {
+                    isLenient = false
                 }
-            }
-        } else {
-            for (pattern in ISO_DATE_PATTERNS) {
-                try {
-                    val sdf = SimpleDateFormat(pattern, Locale.US).apply {
-                        isLenient = false
-                    }
-                    val parsed = sdf.parse(trimmed)
-                    if (parsed != null) {
-                        val displayFormat = SimpleDateFormat(DISPLAY_PATTERN, Locale.ENGLISH)
-                        return displayFormat.format(parsed)
-                    }
-                } catch (_: Exception) {
-                    // Try next pattern
+                val parsedDate = sdf.parse(trimmed)
+                if (parsedDate != null) {
+                    return SimpleDateFormat(DISPLAY_PATTERN, Locale.ENGLISH).format(parsedDate)
                 }
+            } catch (_: Exception) {
+                // Try next pattern
             }
         }
         return trimmed
+    }
+
+    fun formatTimeForDisplay(
+        dateString: String,
+        targetTimeZone: TimeZone = TimeZone.getDefault()
+    ): String {
+        val parsed = parseIsoUtcDateTime(dateString) ?: return ""
+        return SimpleDateFormat("HH:mm", Locale.ENGLISH).apply {
+            timeZone = targetTimeZone
+        }.format(parsed)
+    }
+
+    private fun parseIsoUtcDateTime(dateString: String): Date? {
+        val trimmed = dateString.trim()
+        if (!trimmed.contains("T")) return null
+        for (pattern in ISO_DATE_TIME_PATTERNS) {
+            try {
+                val sdf = SimpleDateFormat(pattern, Locale.US).apply {
+                    timeZone = TimeZone.getTimeZone("UTC")
+                    isLenient = false
+                }
+                val parsed = sdf.parse(trimmed)
+                if (parsed != null) return parsed
+            } catch (_: Exception) {
+                // Try next pattern
+            }
+        }
+        return null
     }
 
     fun formatRelativeDate(
@@ -122,11 +135,15 @@ object DateUtil {
     fun isValidTimeInput(time: String): Boolean = toIsoUtcDateTime("01012000", time) != null
 
     /**
-     * Combines a `ddMMyyyy` date and `HHmm` time into the UTC ISO datetime string stored
-     * for activities (e.g. "2026-09-18T14:00:00Z"). Returns null if either input is not
-     * a real calendar date/time.
+     * Combines a `ddMMyyyy` date and `HHmm` time entered in [sourceTimeZone] into the
+     * UTC ISO datetime string stored for activities (e.g. "2026-09-18T07:00:00Z" for
+     * 14:00 in GMT+7). Returns null if either input is not a real calendar date/time.
      */
-    fun toIsoUtcDateTime(date: String, time: String): String? {
+    fun toIsoUtcDateTime(
+        date: String,
+        time: String,
+        sourceTimeZone: TimeZone = TimeZone.getDefault()
+    ): String? {
         if (date.length != 8 || time.length != 4) return null
         val day = date.substring(0, 2).toIntOrNull() ?: return null
         val month = date.substring(2, 4).toIntOrNull() ?: return null
@@ -135,14 +152,13 @@ object DateUtil {
         val minute = time.substring(2, 4).toIntOrNull() ?: return null
         if (day !in 1..31 || month !in 1..12 || year !in 0..9999 || hour !in 0..23 || minute !in 0..59) return null
 
+        val calendar = Calendar.getInstance(sourceTimeZone).apply {
+            isLenient = false
+            clear()
+            set(year, month - 1, day, hour, minute, 0)
+        }
         val valid = try {
-            val calendar = Calendar.getInstance().apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-                isLenient = false
-                clear()
-                set(year, month - 1, day, hour, minute, 0)
-                getTimeInMillis()
-            }
+            calendar.getTimeInMillis()
             calendar.get(Calendar.DAY_OF_MONTH) == day &&
                 calendar.get(Calendar.MONTH) == month - 1 &&
                 calendar.get(Calendar.YEAR) == year
@@ -151,10 +167,8 @@ object DateUtil {
         }
         if (!valid) return null
 
-        return String.format(
-            Locale.US,
-            "%04d-%02d-%02dT%02d:%02d:00Z",
-            year, month, day, hour, minute
-        )
+        return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(calendar.time)
     }
 }

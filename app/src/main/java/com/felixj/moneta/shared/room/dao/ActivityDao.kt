@@ -24,6 +24,17 @@ interface ActivityDao {
     suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon>
 
     @Query("""
+        SELECT 
+            activity.*, 
+            category.icon AS category_icon,
+            category.type AS category_type
+        FROM activity
+        INNER JOIN category ON activity.category_id = category.id
+        WHERE activity.id = :id
+    """)
+    suspend fun getActivityById(id: Int): ActivityWithCategoryIcon?
+
+    @Query("""
         SELECT COALESCE(SUM(CASE WHEN category.type = 'INCOME' THEN activity.amount ELSE -activity.amount END), 0)
         FROM activity
         INNER JOIN category ON activity.category_id = category.id

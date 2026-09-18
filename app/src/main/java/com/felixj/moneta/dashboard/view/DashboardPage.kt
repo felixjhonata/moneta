@@ -119,8 +119,10 @@ private fun DashboardPageContent(
 
             recentActivities(
                 uiState.recentActivities,
-                uiState.showSeeMoreButton
-            ) { onUserEvent(DashboardPageUserEvent.SeeMoreButtonClick) }
+                uiState.showSeeMoreButton,
+                { onUserEvent(DashboardPageUserEvent.SeeMoreButtonClick) },
+                { onUserEvent(DashboardPageUserEvent.ActivityItemClick(it)) }
+            )
         }
     }
 }
@@ -128,7 +130,8 @@ private fun DashboardPageContent(
 fun LazyListScope.recentActivities(
     activityItems: List<ActivityItemUiModel>,
     showSeeMoreButton: Boolean,
-    onSeeMoreButtonClick: () -> Unit
+    onSeeMoreButtonClick: () -> Unit,
+    onActivityClick: (Int) -> Unit
 ) {
     item {
         Column(
@@ -161,6 +164,7 @@ fun LazyListScope.recentActivities(
         items(activityItems) { item ->
             ActivityItem(
                 item,
+                onClick = { onActivityClick(item.activityId) },
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .fillMaxWidth()

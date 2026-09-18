@@ -11,6 +11,8 @@ import javax.inject.Singleton
 class ActivityRepository @Inject constructor(private val activityDao: ActivityDao) {
     suspend fun getActivities(limit: Int = -1): List<ActivityWithCategoryIcon> = activityDao.getActivities(limit)
 
+    suspend fun getActivity(id: Int): ActivityWithCategoryIcon? = activityDao.getActivityById(id)
+
     suspend fun getCurrentBalance(): Long = activityDao.getCurrentBalance()
 
     suspend fun getTotalAmountByTypeAndDateRange(
