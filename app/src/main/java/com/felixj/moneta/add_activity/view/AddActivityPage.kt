@@ -23,7 +23,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog as MaterialDatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -62,6 +61,7 @@ import com.felixj.moneta.add_activity.viewmodel.AddActivityPageViewModel
 import com.felixj.moneta.shared.model.UiText
 import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.util.goBack
+import com.felixj.moneta.shared.view.PageHeader
 import com.felixj.moneta.shared.util.rememberCurrencyAmountInputVisualTransformation
 import com.felixj.moneta.shared.util.rememberDateInputVisualTransformation
 import com.felixj.moneta.shared.util.rememberTimeInputVisualTransformation
@@ -102,23 +102,10 @@ private fun AddActivityPageContent(
     Scaffold(modifier) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
             item {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton({ onUserEvent(AddActivityPageUserEvent.NavigateBack) }) {
-                        Icon(
-                            painterResource(R.drawable.baseline_arrow_back_24),
-                            stringResource(R.string.back)
-                        )
-                    }
-
-                    Text(
-                        stringResource(R.string.add_activity),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
+                PageHeader(
+                    stringResource(R.string.add_activity),
+                    { onUserEvent(AddActivityPageUserEvent.NavigateBack) }
+                )
             }
 
             item {
