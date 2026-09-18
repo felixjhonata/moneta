@@ -10,9 +10,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,10 +21,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -101,7 +108,14 @@ private fun AddCategoryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    OutlinedCard(onClick = onClick, modifier = modifier) {
+    val shape = CardDefaults.shape
+    val borderColor = MaterialTheme.colorScheme.outlineVariant
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.outlinedCardColors(),
+        shape = shape,
+        modifier = modifier.dashedBorder(borderColor, 12.dp, 8.dp, 6.dp)
+    ) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -126,6 +140,23 @@ private fun AddCategoryCard(
             )
         }
     }
+}
+
+private fun Modifier.dashedBorder(
+    color: Color,
+    cornerRadius: Dp,
+    onLength: Dp,
+    offLength: Dp
+) = drawWithContent {
+    drawContent()
+    drawRoundRect(
+        color = color,
+        style = Stroke(
+            width = 1.dp.toPx(),
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(onLength.toPx(), offLength.toPx()))
+        ),
+        cornerRadius = CornerRadius(cornerRadius.toPx())
+    )
 }
 
 @Preview(
