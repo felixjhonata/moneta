@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.felixj.moneta.add_activity.view.AddActivityPage
 import com.felixj.moneta.dashboard.view.DashboardPage
 import com.felixj.moneta.history.view.HistoryPage
 import com.felixj.moneta.settings.model.LocalAppCurrency
@@ -59,6 +60,10 @@ class MainActivity : ComponentActivity() {
 
                         entry<MonetaRoute.Settings> {
                             SettingsPage(backStack)
+                        }
+
+                        entry<MonetaRoute.AddActivity> {
+                            AddActivityPage(backStack)
                         }
                     }
                 )

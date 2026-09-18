@@ -12,4 +12,7 @@ sealed interface MonetaRoute: NavKey {
 
     @Serializable
     data object Settings: MonetaRoute
+
+    @Serializable
+    data object AddActivity: MonetaRoute
 }

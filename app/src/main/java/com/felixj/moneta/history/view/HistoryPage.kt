@@ -32,6 +32,7 @@ import com.felixj.moneta.history.model.HistoryPageUiEvent
 import com.felixj.moneta.history.model.HistoryPageUiState
 import com.felixj.moneta.history.model.HistoryPageUserEvent
 import com.felixj.moneta.history.viewmodel.HistoryPageViewModel
+import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
@@ -76,7 +77,9 @@ private fun HistoryPageContent(
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
-            FloatingActionButton({}) {
+            FloatingActionButton(
+                { onUserEvent(HistoryPageUserEvent.NavigateTo(MonetaRoute.AddActivity)) }
+            ) {
                 Icon(
                     painterResource(R.drawable.baseline_add_24),
                     "add"

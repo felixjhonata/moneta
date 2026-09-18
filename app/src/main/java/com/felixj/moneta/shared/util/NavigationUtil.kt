@@ -16,5 +16,8 @@ fun NavBackStack<NavKey>.navigateTo(destination: MonetaRoute) {
         MonetaRoute.Dashboard -> navigateSingleTop(MonetaRoute.Dashboard)
         MonetaRoute.History -> navigateSingleTop(MonetaRoute.History)
         MonetaRoute.Settings -> navigateSingleTop(MonetaRoute.Settings)
+        else -> this.add(destination)
     }
 }
+
+fun NavBackStack<NavKey>.goBack() = this.removeLastOrNull()
