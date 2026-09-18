@@ -1,17 +1,14 @@
 package com.felixj.moneta.settings.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -26,7 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
@@ -46,6 +42,7 @@ import com.felixj.moneta.settings.viewmodel.SettingsPageViewModel
 import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
+import com.felixj.moneta.shared.view.CategoriesGrid
 import com.felixj.moneta.shared.view.SeeMoreButton
 import com.felixj.moneta.ui.theme.MonetaTheme
 
@@ -161,68 +158,13 @@ private fun LazyListScope.buildCategoriesSection(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                categories.chunked(2).forEach { uiModels ->
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        uiModels.forEach { uiModel ->
-                            CategoryCard(
-                                uiModel.icon,
-                                uiModel.label,
-                                uiModel.isExpense,
-                                Modifier.weight(1f)
-                            )
-                        }
-
-                        if (uiModels.size == 1) {
-                            Spacer(Modifier.weight(1f))
-                        }
-                    }
-                }
+                CategoriesGrid(categories)
 
                 if (showSeeMoreButton) SeeMoreButton(
                     {},
                     Modifier.align(Alignment.CenterHorizontally)
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun CategoryCard(
-    iconRes: Int,
-    categoryLabel: String,
-    isExpense: Boolean,
-    modifier: Modifier = Modifier
-) {
-    OutlinedCard(modifier) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Box(
-                Modifier
-                    .clip(CircleShape)
-                    .background(
-                        if (isExpense) MaterialTheme.colorScheme.errorContainer
-                        else MaterialTheme.colorScheme.primaryContainer
-                    )
-            ) {
-                Icon(
-                    painterResource(iconRes),
-                    null,
-                    modifier = Modifier.padding(8.dp),
-                    tint = if (isExpense) MaterialTheme.colorScheme.onErrorContainer
-                    else MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-
-            Text(
-                categoryLabel,
-                style = MaterialTheme.typography.titleMedium,
-                color = if (isExpense) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-            )
         }
     }
 }
