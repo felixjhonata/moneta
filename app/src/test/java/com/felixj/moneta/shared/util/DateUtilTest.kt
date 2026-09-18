@@ -1,6 +1,9 @@
 package com.felixj.moneta.shared.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Calendar
 import java.util.TimeZone
@@ -146,5 +149,34 @@ class DateUtilTest {
         val result = DateUtil.formatRelativeDate(utcIso, now, TimeZone.getTimeZone("GMT+7"))
 
         assertEquals("Today", result)
+    }
+
+    @Test
+    fun toIsoUtcDateTime_withValidInput_returnsUtcIsoString() {
+        assertEquals("2026-09-18T14:05:00Z", DateUtil.toIsoUtcDateTime("18092026", "1405"))
+        assertEquals("2000-01-01T00:00:00Z", DateUtil.toIsoUtcDateTime("01012000", "0000"))
+    }
+
+    @Test
+    fun toIsoUtcDateTime_withInvalidDate_returnsNull() {
+        assertNull(DateUtil.toIsoUtcDateTime("31022026", "1400")) // 31 Feb
+        assertNull(DateUtil.toIsoUtcDateTime("30022026", "1400")) // 30 Feb non-leap
+        assertNull(DateUtil.toIsoUtcDateTime("32012026", "1400")) // day 32
+        assertNull(DateUtil.toIsoUtcDateTime("01132026", "1400")) // month 13
+    }
+
+    @Test
+    fun toIsoUtcDateTime_withInvalidTime_returnsNull() {
+        assertNull(DateUtil.toIsoUtcDateTime("18092026", "2460")) // hour 24
+        assertNull(DateUtil.toIsoUtcDateTime("18092026", "1260")) // minute 60
+        assertNull(DateUtil.toIsoUtcDateTime("18092026", "140"))
+    }
+
+    @Test
+    fun isValidDateInput_and_isValidTimeInput_onlyAcceptRealValues() {
+        assertTrue(DateUtil.isValidDateInput("18092026"))
+        assertTrue(DateUtil.isValidTimeInput("1400"))
+        assertFalse(DateUtil.isValidDateInput("31022026"))
+        assertFalse(DateUtil.isValidTimeInput("1260"))
     }
 }

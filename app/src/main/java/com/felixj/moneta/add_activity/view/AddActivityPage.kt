@@ -156,6 +156,14 @@ private fun AddActivityPageContent(
                             visualTransformation = rememberCurrencyAmountInputVisualTransformation()
                         )
                     }
+
+                    if (uiState.amountError) {
+                        Text(
+                            stringResource(R.string.amount_required),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
 
@@ -234,34 +242,46 @@ private fun AddActivityPageContent(
                                 }
                             }
                         }
+
+                    if (uiState.categoryError) {
+                        Text(
+                            stringResource(R.string.category_required),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
 
             item {
                 DateTimeInputField(
-                    uiState.date,
-                    { rawValue ->
+                    value = uiState.date,
+                    onValueChange = { rawValue ->
                         onUserEvent(AddActivityPageUserEvent.UpdateDate(rawValue.filter { it.isDigit() }
                             .take(8)))
                     },
-                    R.string.date,
-                    rememberDateInputVisualTransformation(),
-                    R.drawable.baseline_calendar_month_24,
-                    onIconClick = { onUserEvent(AddActivityPageUserEvent.ShowDatePicker) }
+                    labelRes = R.string.date,
+                    visualTransformation = rememberDateInputVisualTransformation(),
+                    iconRes = R.drawable.baseline_calendar_month_24,
+                    onIconClick = { onUserEvent(AddActivityPageUserEvent.ShowDatePicker) },
+                    error = uiState.dateError,
+                    errorTextRes = R.string.date_required
                 )
             }
 
             item {
                 DateTimeInputField(
-                    uiState.time,
-                    { rawValue ->
+                    value = uiState.time,
+                    onValueChange = { rawValue ->
                         onUserEvent(AddActivityPageUserEvent.UpdateTime(rawValue.filter { it.isDigit() }
                             .take(4)))
                     },
-                    R.string.time,
-                    rememberTimeInputVisualTransformation(),
-                    R.drawable.baseline_access_time_24,
-                    onIconClick = { onUserEvent(AddActivityPageUserEvent.ShowTimePicker) }
+                    labelRes = R.string.time,
+                    visualTransformation = rememberTimeInputVisualTransformation(),
+                    iconRes = R.drawable.baseline_access_time_24,
+                    onIconClick = { onUserEvent(AddActivityPageUserEvent.ShowTimePicker) },
+                    error = uiState.timeError,
+                    errorTextRes = R.string.time_required
                 )
             }
 
@@ -269,19 +289,20 @@ private fun AddActivityPageContent(
                 Spacer(Modifier.height(12.dp))
 
                 OutlinedTextField(
-                    uiState.notes,
-                    { onUserEvent(AddActivityPageUserEvent.UpdateNotes(it)) },
+                    value = uiState.note,
+                    onValueChange = { onUserEvent(AddActivityPageUserEvent.UpdateNotes(it)) },
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth(),
-                    label = { Text(stringResource(R.string.notes)) },
-                    minLines = 4
+                    label = { Text(stringResource(R.string.note_optional)) },
+                    minLines = 4,
+                    maxLines = 4
                 )
             }
 
             item {
                 Button(
-                    {},
+                    { onUserEvent(AddActivityPageUserEvent.Submit) },
                     modifier = Modifier
                         .padding(horizontal = 24.dp, vertical = 12.dp)
                         .fillMaxWidth()
@@ -391,7 +412,9 @@ private fun DateTimeInputField(
     visualTransformation: VisualTransformation,
     iconRes: Int,
     onIconClick: () -> Unit,
-    modifier: Modifier = Modifier
+    errorTextRes: Int,
+    modifier: Modifier = Modifier,
+    error: Boolean = false
 ) {
     Spacer(Modifier.height(12.dp))
 
@@ -407,7 +430,13 @@ private fun DateTimeInputField(
             modifier = Modifier.weight(1f),
             label = { Text(stringResource(labelRes)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            visualTransformation = visualTransformation
+            visualTransformation = visualTransformation,
+            isError = error,
+            supportingText = if (error) {
+                { Text(stringResource(errorTextRes)) }
+            } else {
+                null
+            }
         )
 
         Card(

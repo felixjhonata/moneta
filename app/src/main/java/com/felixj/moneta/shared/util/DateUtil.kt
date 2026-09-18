@@ -116,4 +116,45 @@ object DateUtil {
             else -> formattedDate
         }
     }
+
+    fun isValidDateInput(date: String): Boolean = toIsoUtcDateTime(date, "0000") != null
+
+    fun isValidTimeInput(time: String): Boolean = toIsoUtcDateTime("01012000", time) != null
+
+    /**
+     * Combines a `ddMMyyyy` date and `HHmm` time into the UTC ISO datetime string stored
+     * for activities (e.g. "2026-09-18T14:00:00Z"). Returns null if either input is not
+     * a real calendar date/time.
+     */
+    fun toIsoUtcDateTime(date: String, time: String): String? {
+        if (date.length != 8 || time.length != 4) return null
+        val day = date.substring(0, 2).toIntOrNull() ?: return null
+        val month = date.substring(2, 4).toIntOrNull() ?: return null
+        val year = date.substring(4, 8).toIntOrNull() ?: return null
+        val hour = time.substring(0, 2).toIntOrNull() ?: return null
+        val minute = time.substring(2, 4).toIntOrNull() ?: return null
+        if (day !in 1..31 || month !in 1..12 || year !in 0..9999 || hour !in 0..23 || minute !in 0..59) return null
+
+        val valid = try {
+            val calendar = Calendar.getInstance().apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+                isLenient = false
+                clear()
+                set(year, month - 1, day, hour, minute, 0)
+                getTimeInMillis()
+            }
+            calendar.get(Calendar.DAY_OF_MONTH) == day &&
+                calendar.get(Calendar.MONTH) == month - 1 &&
+                calendar.get(Calendar.YEAR) == year
+        } catch (_: Exception) {
+            false
+        }
+        if (!valid) return null
+
+        return String.format(
+            Locale.US,
+            "%04d-%02d-%02dT%02d:%02d:00Z",
+            year, month, day, hour, minute
+        )
+    }
 }

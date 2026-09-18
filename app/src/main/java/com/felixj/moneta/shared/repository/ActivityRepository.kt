@@ -1,6 +1,7 @@
 package com.felixj.moneta.shared.repository
 
 import com.felixj.moneta.shared.room.dao.ActivityDao
+import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 import javax.inject.Inject
@@ -17,4 +18,8 @@ class ActivityRepository @Inject constructor(private val activityDao: ActivityDa
         startOfMonth: String,
         startOfNextMonth: String
     ): Long = activityDao.getTotalAmountByTypeAndDateRange(type, startOfMonth, startOfNextMonth)
+
+    suspend fun getNextActivityId(): Int = activityDao.getNextActivityId()
+
+    suspend fun insertActivity(activity: Activity) = activityDao.insertAll(activity)
 }

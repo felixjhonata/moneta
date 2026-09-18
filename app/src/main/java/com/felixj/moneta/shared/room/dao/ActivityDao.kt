@@ -38,6 +38,9 @@ interface ActivityDao {
     """)
     suspend fun getTotalAmountByTypeAndDateRange(type: CategoryType, startOfMonth: String, startOfNextMonth: String): Long
 
+    @Query("SELECT COALESCE(MAX(id), 0) + 1 FROM activity")
+    suspend fun getNextActivityId(): Int
+
     @Insert
     suspend fun insertAll(vararg activities: Activity)
 

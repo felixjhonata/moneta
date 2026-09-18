@@ -5,6 +5,7 @@ import com.felixj.moneta.shared.room.entity.CategoryType
 sealed interface AddActivityPageUserEvent {
     data object LoadData : AddActivityPageUserEvent
     data object NavigateBack : AddActivityPageUserEvent
+    data object Submit : AddActivityPageUserEvent
     data class UpdateAmount(val amount: String) : AddActivityPageUserEvent
     data class SelectCategoryType(val categoryType: CategoryType) : AddActivityPageUserEvent
     data class SelectCategory(val categoryId: Int) : AddActivityPageUserEvent

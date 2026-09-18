@@ -25,8 +25,12 @@
     <string name="category">Category</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
-    <string name="notes">Notes</string>
+    <string name="note_optional">Note (Optional)</string>
     <string name="back">Back</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="amount_required">Please enter a valid amount</string>
+    <string name="category_required">Please select a category</string>
+    <string name="date_required">Please enter a valid date</string>
+    <string name="time_required">Please enter a valid time</string>
 </resources>

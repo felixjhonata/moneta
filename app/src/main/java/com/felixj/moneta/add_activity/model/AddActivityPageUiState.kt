@@ -9,6 +9,10 @@ data class AddActivityPageUiState(
     val selectedCategoryId: Int? = null,
     val date: String = "",
     val time: String = "",
-    val notes: String = "",
-    val dialog: AddActivityPageDialog = AddActivityPageDialog.None
+    val note: String = "",
+    val dialog: AddActivityPageDialog = AddActivityPageDialog.None,
+    val amountError: Boolean = false,
+    val categoryError: Boolean = false,
+    val dateError: Boolean = false,
+    val timeError: Boolean = false
 )
