@@ -11,5 +11,6 @@ data class ActivityDetailPageUiState(
     val amount: UiText.CurrencyAmount = UiText.CurrencyAmount(0),
     val date: String = "",
     val time: String = "",
-    val note: String = ""
+    val note: String = "",
+    val dialog: ActivityDetailPageDialog = ActivityDetailPageDialog.None
 )

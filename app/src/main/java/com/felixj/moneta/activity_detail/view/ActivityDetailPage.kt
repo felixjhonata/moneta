@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -20,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
+import com.felixj.moneta.activity_detail.model.ActivityDetailPageDialog
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUiEvent
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUiState
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUserEvent
@@ -163,7 +166,44 @@ private fun ActivityDetailPageContent(
                 }
             }
         }
+
+        when (uiState.dialog) {
+            ActivityDetailPageDialog.None -> Unit
+            ActivityDetailPageDialog.DeleteConfirmationDialog -> DeleteConfirmationDialog(
+                onConfirm = { onUserEvent(ActivityDetailPageUserEvent.ConfirmDelete) },
+                onDismiss = { onUserEvent(ActivityDetailPageUserEvent.DismissDialog) }
+            )
+        }
     }
+}
+
+@Composable
+private fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.are_you_sure)) },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm()
+                    onDismiss()
+                },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(stringResource(R.string.delete))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable

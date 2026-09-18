@@ -39,4 +39,5 @@
     <string name="income">Income</string>
     <string name="expense">Expense</string>
     <string name="note">Note</string>
+    <string name="are_you_sure">Are you sure?</string>
 </resources>

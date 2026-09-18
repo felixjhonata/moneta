@@ -1,6 +1,7 @@
 package com.felixj.moneta.activity_detail.viewmodel
 
 import com.felixj.moneta.R
+import com.felixj.moneta.activity_detail.model.ActivityDetailPageDialog
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUiEvent
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUserEvent
 import com.felixj.moneta.shared.model.MonetaRoute
@@ -11,6 +12,7 @@ import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 import com.felixj.moneta.shared.util.DateUtil
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -25,6 +27,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
 
@@ -103,6 +106,44 @@ class ActivityDetailPageViewModelTest {
         val event = async(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiEvent.first() }
         viewModel.onUserEvent(ActivityDetailPageUserEvent.NavigateBack)
 
+        assertEquals(ActivityDetailPageUiEvent.NavigateBack, event.await())
+    }
+
+    @Test
+    fun deleteClick_showsDeleteConfirmationDialog() = runTest {
+        val viewModel = ActivityDetailPageViewModel(repository, MonetaRoute.ActivityDetail(1))
+        viewModel.onUserEvent(ActivityDetailPageUserEvent.DeleteClick)
+
+        val uiState = viewModel.uiState.value
+        assertSame(ActivityDetailPageDialog.DeleteConfirmationDialog, uiState.dialog)
+    }
+
+    @Test
+    fun dismissDialog_hidesDeleteConfirmationDialog() = runTest {
+        val viewModel = ActivityDetailPageViewModel(repository, MonetaRoute.ActivityDetail(1))
+        viewModel.onUserEvent(ActivityDetailPageUserEvent.DeleteClick)
+        viewModel.onUserEvent(ActivityDetailPageUserEvent.DismissDialog)
+
+        assertEquals(ActivityDetailPageDialog.None, viewModel.uiState.value.dialog)
+    }
+
+    @Test
+    fun confirmDelete_deletesActivityAndEmitsNavigateBack() = runTest {
+        val activity = Activity(5, 3, "Electricity Bills", "2026-09-04T14:00:00Z", 1200000, "Monthly bill")
+        coEvery { repository.getActivity(5) } returns ActivityWithCategoryIcon(
+            activity,
+            R.drawable.baseline_lightbulb_24,
+            CategoryType.EXPENSE
+        )
+        coEvery { repository.deleteActivity(activity) } returns Unit
+
+        val viewModel = ActivityDetailPageViewModel(repository, MonetaRoute.ActivityDetail(5))
+        val event = async(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiEvent.first() }
+        viewModel.onUserEvent(ActivityDetailPageUserEvent.DeleteClick)
+        viewModel.onUserEvent(ActivityDetailPageUserEvent.ConfirmDelete)
+
+        coVerify { repository.deleteActivity(activity) }
+        assertEquals(ActivityDetailPageDialog.None, viewModel.uiState.value.dialog)
         assertEquals(ActivityDetailPageUiEvent.NavigateBack, event.await())
     }
 }

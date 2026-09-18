@@ -24,4 +24,6 @@ class ActivityRepository @Inject constructor(private val activityDao: ActivityDa
     suspend fun getNextActivityId(): Int = activityDao.getNextActivityId()
 
     suspend fun insertActivity(activity: Activity) = activityDao.insertAll(activity)
+
+    suspend fun deleteActivity(activity: Activity) = activityDao.delete(activity)
 }

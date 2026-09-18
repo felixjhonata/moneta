@@ -3,6 +3,7 @@ package com.felixj.moneta.activity_detail.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixj.moneta.R
+import com.felixj.moneta.activity_detail.model.ActivityDetailPageDialog
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUiEvent
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUiState
 import com.felixj.moneta.activity_detail.model.ActivityDetailPageUserEvent
@@ -40,7 +41,18 @@ class ActivityDetailPageViewModel @AssistedInject constructor(
                 _uiEvent.emit(ActivityDetailPageUiEvent.NavigateBack)
             }
             ActivityDetailPageUserEvent.EditClick -> Unit // TODO: edit activity
-            ActivityDetailPageUserEvent.DeleteClick -> Unit // TODO: delete activity
+            ActivityDetailPageUserEvent.DeleteClick -> _uiState.update {
+                it.copy(dialog = ActivityDetailPageDialog.DeleteConfirmationDialog)
+            }
+            ActivityDetailPageUserEvent.DismissDialog -> _uiState.update {
+                it.copy(dialog = ActivityDetailPageDialog.None)
+            }
+            ActivityDetailPageUserEvent.ConfirmDelete -> viewModelScope.launch {
+                val item = activityRepository.getActivity(navKey.activityId) ?: return@launch
+                activityRepository.deleteActivity(item.activity)
+                _uiState.update { it.copy(dialog = ActivityDetailPageDialog.None) }
+                _uiEvent.emit(ActivityDetailPageUiEvent.NavigateBack)
+            }
         }
     }
 
