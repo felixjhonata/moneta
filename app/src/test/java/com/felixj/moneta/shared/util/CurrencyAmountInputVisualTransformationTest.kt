@@ -20,11 +20,11 @@ class CurrencyAmountInputVisualTransformationTest {
     }
 
     @Test
-    fun filter_usdCurrency_formatsWithDollarPrefixAndCommas() {
+    fun filter_usdCurrency_treatsLastTwoDigitsAsCents() {
         val transformation = CurrencyAmountInputVisualTransformation(Currency.USD)
-        val result = transformation.filter(AnnotatedString("10000"))
-
-        assertEquals("$ 10,000", result.text.text)
+        assertEquals("$ 100.00", transformation.filter(AnnotatedString("10000")).text.text)
+        assertEquals("$ 20.05", transformation.filter(AnnotatedString("2005")).text.text)
+        assertEquals("$ 12,345.67", transformation.filter(AnnotatedString("1234567")).text.text)
     }
 
     @Test
@@ -47,12 +47,12 @@ class CurrencyAmountInputVisualTransformationTest {
     }
 
     @Test
-    fun filter_smallNumbers_doesNotAddSeparators() {
+    fun filter_usdCurrency_padsShortInputsWithLeadingZero() {
         val transformation = CurrencyAmountInputVisualTransformation(Currency.USD)
 
-        assertEquals("$ 5", transformation.filter(AnnotatedString("5")).text.text)
-        assertEquals("$ 50", transformation.filter(AnnotatedString("50")).text.text)
-        assertEquals("$ 500", transformation.filter(AnnotatedString("500")).text.text)
+        assertEquals("$ 0.05", transformation.filter(AnnotatedString("5")).text.text)
+        assertEquals("$ 0.50", transformation.filter(AnnotatedString("50")).text.text)
+        assertEquals("$ 5.00", transformation.filter(AnnotatedString("500")).text.text)
     }
 
     @Test
@@ -70,10 +70,10 @@ class CurrencyAmountInputVisualTransformationTest {
 
     @Test
     fun offsetMapping_usd_correctCursorPositions() {
-        // Raw: "10000" (len 5)
-        // Transformed: "$ 10,000" (len 8)
+        // Raw: "10000" (len 5) stored as cents
+        // Transformed: "$ 100.00" (len 8)
         // Indices in transformed:
-        // 0: '$', 1: ' ', 2: '1', 3: '0', 4: ',', 5: '0', 6: '0', 7: '0'
+        // 0: '$', 1: ' ', 2: '1', 3: '0', 4: '0', 5: '.', 6: '0', 7: '0'
         val transformation = CurrencyAmountInputVisualTransformation(Currency.USD)
         val result = transformation.filter(AnnotatedString("10000"))
         val mapping = result.offsetMapping
@@ -81,21 +81,40 @@ class CurrencyAmountInputVisualTransformationTest {
         // originalToTransformed
         assertEquals(2, mapping.originalToTransformed(0)) // before '1' -> after "$ "
         assertEquals(3, mapping.originalToTransformed(1)) // after '1'
-        assertEquals(5, mapping.originalToTransformed(2)) // after first '0' and comma ','
-        assertEquals(6, mapping.originalToTransformed(3)) // after second '0'
-        assertEquals(7, mapping.originalToTransformed(4)) // after third '0'
-        assertEquals(8, mapping.originalToTransformed(5)) // after fourth '0' (end)
+        assertEquals(4, mapping.originalToTransformed(2)) // after second '0'
+        assertEquals(6, mapping.originalToTransformed(3)) // after third '0' and dot '.'
+        assertEquals(7, mapping.originalToTransformed(4)) // after first cents '0'
+        assertEquals(8, mapping.originalToTransformed(5)) // end
 
         // transformedToOriginal
         assertEquals(0, mapping.transformedToOriginal(0)) // at '$'
         assertEquals(0, mapping.transformedToOriginal(1)) // at ' '
         assertEquals(0, mapping.transformedToOriginal(2)) // before '1'
         assertEquals(1, mapping.transformedToOriginal(3)) // after '1'
-        assertEquals(2, mapping.transformedToOriginal(4)) // at ','
-        assertEquals(2, mapping.transformedToOriginal(5)) // after ',' / before second '0'
-        assertEquals(3, mapping.transformedToOriginal(6)) // after second '0'
-        assertEquals(4, mapping.transformedToOriginal(7)) // after third '0'
-        assertEquals(5, mapping.transformedToOriginal(8)) // after fourth '0' (end)
+        assertEquals(2, mapping.transformedToOriginal(4)) // after second '0'
+        assertEquals(3, mapping.transformedToOriginal(5)) // at '.'
+        assertEquals(3, mapping.transformedToOriginal(6)) // after '.' / before cents
+        assertEquals(4, mapping.transformedToOriginal(7)) // after first cents '0'
+        assertEquals(5, mapping.transformedToOriginal(8)) // end
+    }
+
+    @Test
+    fun offsetMapping_usd_paddedShortInput_mapsTypedDigitOnly() {
+        // Raw: "5" (len 1) -> Transformed: "$ 0.05" (len 6)
+        // 0: '$', 1: ' ', 2: '0', 3: '.', 4: '0', 5: '5'
+        val transformation = CurrencyAmountInputVisualTransformation(Currency.USD)
+        val result = transformation.filter(AnnotatedString("5"))
+        val mapping = result.offsetMapping
+
+        assertEquals(5, mapping.originalToTransformed(0)) // the typed '5'
+        assertEquals(6, mapping.originalToTransformed(1)) // end
+
+        assertEquals(0, mapping.transformedToOriginal(0))
+        assertEquals(0, mapping.transformedToOriginal(2)) // at padding '0'
+        assertEquals(0, mapping.transformedToOriginal(3)) // at '.'
+        assertEquals(0, mapping.transformedToOriginal(4)) // at padding '0'
+        assertEquals(0, mapping.transformedToOriginal(5)) // before typed '5'
+        assertEquals(1, mapping.transformedToOriginal(6)) // after typed '5' (end)
     }
 
     @Test

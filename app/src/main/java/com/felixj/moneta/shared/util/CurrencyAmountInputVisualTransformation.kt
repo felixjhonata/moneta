@@ -65,7 +65,7 @@ fun rememberCurrencyAmountInputVisualTransformation(
  * @param locale Optional [Locale] to use for formatting. If null, derived from [currency] or [Locale.getDefault].
  */
 class CurrencyAmountInputVisualTransformation(
-    currency: Currency? = null,
+    val currency: Currency? = null,
     prefix: String? = null,
     locale: Locale? = null
 ) : VisualTransformation {
@@ -78,6 +78,9 @@ class CurrencyAmountInputVisualTransformation(
 
     private val groupingSeparator: Char =
         DecimalFormatSymbols.getInstance(actualLocale).groupingSeparator
+
+    private val decimalSeparator: Char =
+        DecimalFormatSymbols.getInstance(actualLocale).decimalSeparator
 
     private val formattedPrefix: String = when {
         prefix != null -> if (prefix.isEmpty() || prefix.endsWith(" ")) prefix else "$prefix "
@@ -94,46 +97,29 @@ class CurrencyAmountInputVisualTransformation(
             return TransformedText(text, OffsetMapping.Identity)
         }
 
-        // Format raw string with thousands grouping separators from the right
-        val originalLength = originalText.length
-        val formattedNumber = buildString {
-            for (i in 0 until originalLength) {
-                append(originalText[i])
-                val digitsRemaining = originalLength - 1 - i
-                if (digitsRemaining > 0 && digitsRemaining % 3 == 0) {
-                    append(groupingSeparator)
-                }
-            }
-        }
-
+        val (formattedNumber, realDigitPositions) = buildFormattedNumber(originalText)
         val formattedText = "$formattedPrefix$formattedNumber"
         val prefixLength = formattedPrefix.length
         val transformedLength = formattedText.length
+        val originalLength = originalText.length
 
-        // Precompute originalToTransformed mapping table (size = originalLength + 1)
+        // originalToTransformed: position of the k-th real (typed) digit, or end after the last one
         val originalToTransformed = IntArray(originalLength + 1)
-        val totalSeparators = (originalLength - 1) / 3
-        for (rawOffset in 0..originalLength) {
-            val digitsRemaining = originalLength - rawOffset
-            val separatorsToRight = if (digitsRemaining > 0) (digitsRemaining - 1) / 3 else 0
-            val separatorsBefore = totalSeparators - separatorsToRight
-            originalToTransformed[rawOffset] = (prefixLength + rawOffset + separatorsBefore)
-                .coerceIn(0, transformedLength)
+        for (k in 0 until originalLength) {
+            originalToTransformed[k] = prefixLength + realDigitPositions[k]
         }
+        originalToTransformed[originalLength] = transformedLength
 
-        // Precompute transformedToOriginal mapping table (size = transformedLength + 1)
+        // transformedToOriginal: number of real digits strictly before the position
         val transformedToOriginal = IntArray(transformedLength + 1)
-        var rawCount = 0
-        for (transOffset in 0..transformedLength) {
-            if (transOffset <= prefixLength) {
-                transformedToOriginal[transOffset] = 0
-            } else {
-                val numberIndex = transOffset - prefixLength - 1
-                if (numberIndex in formattedNumber.indices && formattedNumber[numberIndex] != groupingSeparator) {
-                    rawCount++
-                }
-                transformedToOriginal[transOffset] = rawCount.coerceIn(0, originalLength)
+        var realConsumed = 0
+        for (pos in 0..transformedLength) {
+            while (realConsumed < originalLength &&
+                prefixLength + realDigitPositions[realConsumed] < pos
+            ) {
+                realConsumed++
             }
+            transformedToOriginal[pos] = realConsumed
         }
 
         val offsetMapping = object : OffsetMapping {
@@ -150,5 +136,56 @@ class CurrencyAmountInputVisualTransformation(
             text = AnnotatedString(formattedText),
             offsetMapping = offsetMapping
         )
+    }
+
+    /**
+     * Builds the formatted number string and the position of each typed digit within it.
+     *
+     * For [Currency.USD], amounts are stored in cents: the last 2 typed digits become the
+     * decimal part (e.g. "2005" -> "20.05"), and short inputs are zero-padded (e.g. "5" -> "0.05").
+     * Positions of typed digits are tracked so offset mapping can distinguish them from
+     * zero-padding digits.
+     */
+    private fun buildFormattedNumber(raw: String): Pair<String, IntArray> {
+        val out = StringBuilder()
+        val realDigitPositions = IntArray(raw.length)
+        val n = raw.length
+
+        when (currency) {
+            Currency.USD -> {
+                val intLen = (n - 2).coerceAtLeast(0)
+                if (intLen == 0) {
+                    out.append('0')
+                } else {
+                    for (i in 0 until intLen) {
+                        val digitsRemaining = intLen - 1 - i
+                        realDigitPositions[i] = out.length
+                        out.append(raw[i])
+                        if (digitsRemaining > 0 && digitsRemaining % 3 == 0) {
+                            out.append(groupingSeparator)
+                        }
+                    }
+                }
+                out.append(decimalSeparator)
+                val centsStart = (n - 2).coerceAtLeast(0)
+                repeat(2 - (n - centsStart)) { out.append('0') }
+                for (i in centsStart until n) {
+                    realDigitPositions[i] = out.length
+                    out.append(raw[i])
+                }
+            }
+            Currency.IDR, null -> {
+                for (i in 0 until n) {
+                    val digitsRemaining = n - 1 - i
+                    realDigitPositions[i] = out.length
+                    out.append(raw[i])
+                    if (digitsRemaining > 0 && digitsRemaining % 3 == 0) {
+                        out.append(groupingSeparator)
+                    }
+                }
+            }
+        }
+
+        return out.toString() to realDigitPositions
     }
 }

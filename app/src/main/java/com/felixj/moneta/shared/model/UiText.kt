@@ -52,7 +52,14 @@ sealed interface UiText {
                 Currency.IDR -> Locale.forLanguageTag("id-ID")
                 Currency.USD -> Locale.US
             }
-            val formattedNumber = NumberFormat.getNumberInstance(locale).format(abs(amount))
+            val formattedNumber = when (currentCurrency) {
+                // USD stores amounts in cents: the last 2 digits are the decimal part
+                Currency.USD -> {
+                    val cents = (abs(amount) % 100).toString().padStart(2, '0')
+                    "${NumberFormat.getNumberInstance(locale).format(abs(amount) / 100)}.$cents"
+                }
+                Currency.IDR -> NumberFormat.getNumberInstance(locale).format(abs(amount))
+            }
             val formattedCurrency = stringResource(currentCurrency.symbol, formattedNumber)
             "$prefix$formattedCurrency"
         }

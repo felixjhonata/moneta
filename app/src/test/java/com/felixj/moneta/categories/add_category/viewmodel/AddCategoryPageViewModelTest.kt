@@ -1,8 +1,8 @@
 package com.felixj.moneta.categories.add_category.viewmodel
 
 import com.felixj.moneta.R
-import com.felixj.moneta.categories.add_category.model.AddCategoryPageUiEvent
-import com.felixj.moneta.categories.add_category.model.AddCategoryPageUserEvent
+import com.felixj.moneta.categories.shared.model.AddCategoryPageUiEvent
+import com.felixj.moneta.categories.shared.model.AddCategoryPageUserEvent
 import com.felixj.moneta.shared.repository.CategoryRepository
 import com.felixj.moneta.shared.room.entity.Category
 import com.felixj.moneta.shared.room.entity.CategoryType
