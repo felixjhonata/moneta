@@ -41,7 +41,9 @@ import com.felixj.moneta.categories.model.CategoriesPageUiEvent
 import com.felixj.moneta.categories.model.CategoriesPageUiState
 import com.felixj.moneta.categories.model.CategoriesPageUserEvent
 import com.felixj.moneta.categories.viewmodel.CategoriesPageViewModel
+import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.util.goBack
+import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.CategoriesGrid
 import com.felixj.moneta.shared.view.PageHeader
 import com.felixj.moneta.ui.theme.MonetaTheme
@@ -62,6 +64,7 @@ fun CategoriesPage(
         viewModel.uiEvent.collect { uiEvent ->
             when (uiEvent) {
                 CategoriesPageUiEvent.NavigateBack -> backStack.goBack()
+                CategoriesPageUiEvent.NavigateToAddCategory -> backStack.navigateTo(MonetaRoute.AddCategory)
             }
         }
     }
@@ -96,7 +99,7 @@ fun CategoriesPageContent(
                     Modifier
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth(),
-                    trailingCell = { AddCategoryCard({}, it) }
+                    trailingCell = { AddCategoryCard({ onUserEvent(CategoriesPageUserEvent.NavigateToAddCategory) }, it) }
                 )
             }
         }

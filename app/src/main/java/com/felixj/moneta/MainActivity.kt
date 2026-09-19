@@ -20,6 +20,7 @@ import com.felixj.moneta.activity.add_activity.view.AddActivityPage
 import com.felixj.moneta.activity.edit_activity.view.EditActivityPage
 import com.felixj.moneta.activity.edit_activity.viewmodel.EditActivityPageViewModel
 import com.felixj.moneta.categories.view.CategoriesPage
+import com.felixj.moneta.categories.add_category.view.AddCategoryPage
 import com.felixj.moneta.dashboard.view.DashboardPage
 import com.felixj.moneta.history.view.HistoryPage
 import com.felixj.moneta.settings.model.LocalAppCurrency
@@ -75,6 +76,10 @@ class MainActivity : ComponentActivity() {
 
                             entry<MonetaRoute.Categories> {
                                 CategoriesPage(backStack)
+                            }
+
+                            entry<MonetaRoute.AddCategory> {
+                                AddCategoryPage(backStack)
                             }
 
                             entry<MonetaRoute.ActivityDetail> { key ->

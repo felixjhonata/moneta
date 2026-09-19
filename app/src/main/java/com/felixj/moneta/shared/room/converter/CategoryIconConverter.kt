@@ -15,6 +15,11 @@ object CategoryIconConverter {
         "baseline_history_24" -> R.drawable.baseline_history_24
         "baseline_home_filled_24" -> R.drawable.baseline_home_filled_24
         "baseline_settings_24" -> R.drawable.baseline_settings_24
+        "baseline_more_horiz_24" -> R.drawable.baseline_more_horiz_24
+        "baseline_tv_24" -> R.drawable.baseline_tv_24
+        "baseline_face_retouching_natural_24" -> R.drawable.baseline_face_retouching_natural_24
+        "baseline_oil_barrel_24" -> R.drawable.baseline_oil_barrel_24
+        "outline_show_chart_24" -> R.drawable.outline_show_chart_24
         else -> R.drawable.baseline_lightbulb_24
     }
 
@@ -28,6 +33,11 @@ object CategoryIconConverter {
         R.drawable.baseline_history_24 -> "baseline_history_24"
         R.drawable.baseline_home_filled_24 -> "baseline_home_filled_24"
         R.drawable.baseline_settings_24 -> "baseline_settings_24"
+        R.drawable.baseline_more_horiz_24 -> "baseline_more_horiz_24"
+        R.drawable.baseline_tv_24 -> "baseline_tv_24"
+        R.drawable.baseline_face_retouching_natural_24 -> "baseline_face_retouching_natural_24"
+        R.drawable.baseline_oil_barrel_24 -> "baseline_oil_barrel_24"
+        R.drawable.outline_show_chart_24 -> "outline_show_chart_24"
         else -> "baseline_lightbulb_24"
     }
 }

@@ -12,6 +12,9 @@ interface CategoryDao {
     @Query("SELECT * FROM category LIMIT :limit")
     suspend fun getCategories(limit: Int): List<Category>
 
+    @Query("SELECT COALESCE(MAX(id), 0) + 1 FROM category")
+    suspend fun getNextCategoryId(): Int
+
     @Insert
     suspend fun insertAll(vararg categories: Category)
 

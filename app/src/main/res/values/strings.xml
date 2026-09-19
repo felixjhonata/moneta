@@ -42,4 +42,7 @@
     <string name="expense">Expense</string>
     <string name="note">Note</string>
     <string name="are_you_sure">Are you sure?</string>
+    <string name="category_name">Name</string>
+    <string name="select_icon">Icon</string>
+    <string name="name_required">Please enter a name</string>
 </resources>

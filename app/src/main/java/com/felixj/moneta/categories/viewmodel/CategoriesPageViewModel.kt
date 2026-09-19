@@ -8,6 +8,7 @@ import com.felixj.moneta.categories.model.CategoriesPageUiState
 import com.felixj.moneta.categories.model.CategoriesPageUserEvent
 import com.felixj.moneta.settings.model.CategoryUiModel
 import com.felixj.moneta.shared.repository.CategoryRepository
+import com.felixj.moneta.shared.room.entity.CategoryType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,7 @@ class CategoriesPageViewModel @Inject constructor(
                         CategoryUiModel(
                             icon = category.icon,
                             label = category.name,
-                            isExpense = !category.name.equals("Salary", ignoreCase = true)
+                            isExpense = category.type == CategoryType.EXPENSE
                         )
                     }
                     _uiState.update { it.copy(categories = categories) }
@@ -44,6 +45,11 @@ class CategoriesPageViewModel @Inject constructor(
             CategoriesPageUserEvent.NavigateBack -> {
                 viewModelScope.launch {
                     _uiEvent.emit(CategoriesPageUiEvent.NavigateBack)
+                }
+            }
+            CategoriesPageUserEvent.NavigateToAddCategory -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(CategoriesPageUiEvent.NavigateToAddCategory)
                 }
             }
         }

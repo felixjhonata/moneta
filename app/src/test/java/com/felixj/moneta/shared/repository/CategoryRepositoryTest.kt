@@ -46,4 +46,28 @@ class CategoryRepositoryTest {
         coVerify(exactly = 1) { mockDao.getCategories(4) }
         assertEquals(sampleCategories, result)
     }
+
+    @Test
+    fun getNextCategoryId_delegatesToDao() = runBlocking {
+        val mockDao = mockk<CategoryDao>()
+        coEvery { mockDao.getNextCategoryId() } returns 5
+        val repository = CategoryRepository(mockDao)
+
+        val result = repository.getNextCategoryId()
+
+        coVerify(exactly = 1) { mockDao.getNextCategoryId() }
+        assertEquals(5, result)
+    }
+
+    @Test
+    fun insertCategory_delegatesToDao() = runBlocking {
+        val category = Category(5, "Food", R.drawable.baseline_fastfood_24, CategoryType.EXPENSE)
+        val mockDao = mockk<CategoryDao>()
+        coEvery { mockDao.insertAll(category) } returns Unit
+        val repository = CategoryRepository(mockDao)
+
+        repository.insertCategory(category)
+
+        coVerify(exactly = 1) { mockDao.insertAll(category) }
+    }
 }
