@@ -9,7 +9,13 @@ import javax.inject.Singleton
 class CategoryRepository @Inject constructor(private val categoryDao: CategoryDao) {
     suspend fun getCategories(limit: Int = -1): List<Category> = categoryDao.getCategories(limit)
 
+    suspend fun getCategory(id: Int): Category? = categoryDao.getCategoryById(id)
+
     suspend fun getNextCategoryId(): Int = categoryDao.getNextCategoryId()
 
     suspend fun insertCategory(category: Category) = categoryDao.insertAll(category)
+
+    suspend fun updateCategory(category: Category) = categoryDao.update(category)
+
+    suspend fun deleteCategory(category: Category) = categoryDao.delete(category)
 }

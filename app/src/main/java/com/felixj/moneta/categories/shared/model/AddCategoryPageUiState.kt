@@ -1,4 +1,4 @@
-package com.felixj.moneta.categories.add_category.model
+package com.felixj.moneta.categories.shared.model
 
 import com.felixj.moneta.R
 import com.felixj.moneta.shared.room.entity.CategoryType

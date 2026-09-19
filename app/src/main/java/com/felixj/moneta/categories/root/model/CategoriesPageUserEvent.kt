@@ -1,7 +1,8 @@
-package com.felixj.moneta.categories.model
+package com.felixj.moneta.categories.root.model
 
 sealed interface CategoriesPageUserEvent {
     data object LoadData : CategoriesPageUserEvent
     data object NavigateBack : CategoriesPageUserEvent
     data object NavigateToAddCategory : CategoriesPageUserEvent
+    data class NavigateToCategoryDetail(val categoryId: Int) : CategoriesPageUserEvent
 }

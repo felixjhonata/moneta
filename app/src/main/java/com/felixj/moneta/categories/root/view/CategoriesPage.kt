@@ -1,4 +1,4 @@
-package com.felixj.moneta.categories.view
+package com.felixj.moneta.categories.root.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,10 +37,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.felixj.moneta.R
-import com.felixj.moneta.categories.model.CategoriesPageUiEvent
-import com.felixj.moneta.categories.model.CategoriesPageUiState
-import com.felixj.moneta.categories.model.CategoriesPageUserEvent
-import com.felixj.moneta.categories.viewmodel.CategoriesPageViewModel
+import com.felixj.moneta.categories.root.model.CategoriesPageUiEvent
+import com.felixj.moneta.categories.root.model.CategoriesPageUiState
+import com.felixj.moneta.categories.root.model.CategoriesPageUserEvent
+import com.felixj.moneta.categories.root.viewmodel.CategoriesPageViewModel
 import com.felixj.moneta.shared.model.MonetaRoute
 import com.felixj.moneta.shared.util.goBack
 import com.felixj.moneta.shared.util.navigateTo
@@ -65,6 +65,9 @@ fun CategoriesPage(
             when (uiEvent) {
                 CategoriesPageUiEvent.NavigateBack -> backStack.goBack()
                 CategoriesPageUiEvent.NavigateToAddCategory -> backStack.navigateTo(MonetaRoute.AddCategory)
+                is CategoriesPageUiEvent.NavigateToCategoryDetail -> backStack.navigateTo(
+                    MonetaRoute.CategoryDetail(uiEvent.categoryId)
+                )
             }
         }
     }
@@ -99,7 +102,10 @@ fun CategoriesPageContent(
                     Modifier
                         .padding(horizontal = 24.dp)
                         .fillMaxWidth(),
-                    trailingCell = { AddCategoryCard({ onUserEvent(CategoriesPageUserEvent.NavigateToAddCategory) }, it) }
+                    trailingCell = { AddCategoryCard({ onUserEvent(CategoriesPageUserEvent.NavigateToAddCategory) }, it) },
+                    onCategoryClick = {
+                        onUserEvent(CategoriesPageUserEvent.NavigateToCategoryDetail(it.id))
+                    }
                 )
             }
         }

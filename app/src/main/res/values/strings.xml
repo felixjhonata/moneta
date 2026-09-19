@@ -45,4 +45,7 @@
     <string name="category_name">Name</string>
     <string name="select_icon">Icon</string>
     <string name="name_required">Please enter a name</string>
+    <string name="category_detail">Category Detail</string>
+    <string name="edit_category">Edit Category</string>
+    <string name="type">Type</string>
 </resources>

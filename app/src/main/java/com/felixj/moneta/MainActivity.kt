@@ -19,8 +19,12 @@ import com.felixj.moneta.activity.activity_detail.viewmodel.ActivityDetailPageVi
 import com.felixj.moneta.activity.add_activity.view.AddActivityPage
 import com.felixj.moneta.activity.edit_activity.view.EditActivityPage
 import com.felixj.moneta.activity.edit_activity.viewmodel.EditActivityPageViewModel
-import com.felixj.moneta.categories.view.CategoriesPage
+import com.felixj.moneta.categories.root.view.CategoriesPage
 import com.felixj.moneta.categories.add_category.view.AddCategoryPage
+import com.felixj.moneta.categories.category_detail.view.CategoryDetailPage
+import com.felixj.moneta.categories.category_detail.viewmodel.CategoryDetailPageViewModel
+import com.felixj.moneta.categories.edit_category.view.EditCategoryPage
+import com.felixj.moneta.categories.edit_category.viewmodel.EditCategoryPageViewModel
 import com.felixj.moneta.dashboard.view.DashboardPage
 import com.felixj.moneta.history.view.HistoryPage
 import com.felixj.moneta.settings.model.LocalAppCurrency
@@ -100,6 +104,26 @@ class MainActivity : ComponentActivity() {
                                     creationCallback = { factory -> factory.create(key) }
                                 )
                                 EditActivityPage(backStack, viewModel)
+                            }
+
+                            entry<MonetaRoute.CategoryDetail> { key ->
+                                val viewModel = hiltViewModel<
+                                        CategoryDetailPageViewModel,
+                                        CategoryDetailPageViewModel.Factory
+                                        >(
+                                    creationCallback = { factory -> factory.create(key) }
+                                )
+                                CategoryDetailPage(backStack, viewModel)
+                            }
+
+                            entry<MonetaRoute.EditCategory> { key ->
+                                val viewModel = hiltViewModel<
+                                        EditCategoryPageViewModel,
+                                        EditCategoryPageViewModel.Factory
+                                        >(
+                                    creationCallback = { factory -> factory.create(key) }
+                                )
+                                EditCategoryPage(backStack, viewModel)
                             }
                         }
                     )

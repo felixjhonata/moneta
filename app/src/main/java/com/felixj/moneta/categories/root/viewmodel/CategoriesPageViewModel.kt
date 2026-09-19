@@ -1,11 +1,11 @@
-package com.felixj.moneta.categories.viewmodel
+package com.felixj.moneta.categories.root.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.felixj.moneta.R
-import com.felixj.moneta.categories.model.CategoriesPageUiEvent
-import com.felixj.moneta.categories.model.CategoriesPageUiState
-import com.felixj.moneta.categories.model.CategoriesPageUserEvent
+import com.felixj.moneta.categories.root.model.CategoriesPageUiEvent
+import com.felixj.moneta.categories.root.model.CategoriesPageUiState
+import com.felixj.moneta.categories.root.model.CategoriesPageUserEvent
 import com.felixj.moneta.settings.model.CategoryUiModel
 import com.felixj.moneta.shared.repository.CategoryRepository
 import com.felixj.moneta.shared.room.entity.CategoryType
@@ -36,7 +36,8 @@ class CategoriesPageViewModel @Inject constructor(
                         CategoryUiModel(
                             icon = category.icon,
                             label = category.name,
-                            isExpense = category.type == CategoryType.EXPENSE
+                            isExpense = category.type == CategoryType.EXPENSE,
+                            id = category.id
                         )
                     }
                     _uiState.update { it.copy(categories = categories) }
@@ -50,6 +51,11 @@ class CategoriesPageViewModel @Inject constructor(
             CategoriesPageUserEvent.NavigateToAddCategory -> {
                 viewModelScope.launch {
                     _uiEvent.emit(CategoriesPageUiEvent.NavigateToAddCategory)
+                }
+            }
+            is CategoriesPageUserEvent.NavigateToCategoryDetail -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(CategoriesPageUiEvent.NavigateToCategoryDetail(userEvent.categoryId))
                 }
             }
         }

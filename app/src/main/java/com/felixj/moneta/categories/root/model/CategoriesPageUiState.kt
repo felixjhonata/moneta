@@ -1,4 +1,4 @@
-package com.felixj.moneta.categories.model
+package com.felixj.moneta.categories.root.model
 
 import com.felixj.moneta.settings.model.CategoryUiModel
 

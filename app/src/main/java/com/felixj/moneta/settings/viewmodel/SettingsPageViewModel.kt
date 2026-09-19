@@ -50,7 +50,8 @@ class SettingsPageViewModel @Inject constructor(
                         CategoryUiModel(
                             icon = category.icon,
                             label = category.name,
-                            isExpense = !category.name.equals("Salary", ignoreCase = true)
+                            isExpense = !category.name.equals("Salary", ignoreCase = true),
+                            id = category.id
                         )
                     }
                     _uiState.update {

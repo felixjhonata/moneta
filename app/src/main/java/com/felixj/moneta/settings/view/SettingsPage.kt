@@ -160,7 +160,12 @@ private fun LazyListScope.buildCategoriesSection(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CategoriesGrid(categories)
+                CategoriesGrid(
+                    categories,
+                    onCategoryClick = {
+                        onUserEvent(SettingsPageUserEvent.NavigateTo(MonetaRoute.CategoryDetail(it.id)))
+                    }
+                )
 
                 if (showSeeMoreButton) SeeMoreButton(
                     { onUserEvent(SettingsPageUserEvent.NavigateTo(MonetaRoute.Categories)) },

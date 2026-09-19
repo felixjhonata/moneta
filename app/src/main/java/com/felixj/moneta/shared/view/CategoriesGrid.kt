@@ -23,7 +23,8 @@ import com.felixj.moneta.settings.model.CategoryUiModel
 fun CategoriesGrid(
     categories: List<CategoryUiModel>,
     modifier: Modifier = Modifier,
-    trailingCell: (@Composable (Modifier) -> Unit)? = null
+    trailingCell: (@Composable (Modifier) -> Unit)? = null,
+    onCategoryClick: (CategoryUiModel) -> Unit = {}
 ) {
     val rows = categories.chunked(2)
     Column(
@@ -35,7 +36,11 @@ fun CategoriesGrid(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 row.forEach { category ->
-                    CategoryCard(category, Modifier.weight(1f))
+                    CategoryCard(
+                        category,
+                        onClick = { onCategoryClick(category) },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 if (rows.last().size != 2 && index == rows.lastIndex && trailingCell != null) {
@@ -60,9 +65,10 @@ fun CategoriesGrid(
 @Composable
 fun CategoryCard(
     category: CategoryUiModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
-    OutlinedCard(modifier) {
+    OutlinedCard(onClick = onClick, modifier = modifier) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
