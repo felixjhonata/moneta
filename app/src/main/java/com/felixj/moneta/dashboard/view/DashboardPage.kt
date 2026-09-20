@@ -38,6 +38,9 @@ import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
+import com.felixj.moneta.shared.view.ResponsiveAmountText
+import com.felixj.moneta.shared.view.ResponsiveFontSizeGroup
+import com.felixj.moneta.shared.view.rememberResponsiveFontSizeGroup
 import com.felixj.moneta.shared.view.SeeMoreButton
 import com.felixj.moneta.ui.theme.MonetaTheme
 
@@ -85,6 +88,11 @@ private fun DashboardPageContent(
             )
         }
     ) { innerPadding ->
+        val earnedSpentGroup =
+            rememberResponsiveFontSizeGroup(MaterialTheme.typography.titleLarge.fontSize)
+        val activityGroup =
+            rememberResponsiveFontSizeGroup(MaterialTheme.typography.titleMedium.fontSize)
+
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = innerPadding,
@@ -113,7 +121,8 @@ private fun DashboardPageContent(
                     uiState.expense.asString(),
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    sizeGroup = earnedSpentGroup
                 )
             }
 
@@ -121,7 +130,8 @@ private fun DashboardPageContent(
                 uiState.recentActivities,
                 uiState.showSeeMoreButton,
                 { onUserEvent(DashboardPageUserEvent.SeeMoreButtonClick) },
-                { onUserEvent(DashboardPageUserEvent.ActivityItemClick(it)) }
+                { onUserEvent(DashboardPageUserEvent.ActivityItemClick(it)) },
+                activityGroup
             )
         }
     }
@@ -131,7 +141,8 @@ fun LazyListScope.recentActivities(
     activityItems: List<ActivityItemUiModel>,
     showSeeMoreButton: Boolean,
     onSeeMoreButtonClick: () -> Unit,
-    onActivityClick: (Int) -> Unit
+    onActivityClick: (Int) -> Unit,
+    sizeGroup: ResponsiveFontSizeGroup? = null
 ) {
     item {
         Column(
@@ -167,7 +178,8 @@ fun LazyListScope.recentActivities(
                 onClick = { onActivityClick(item.activityId) },
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                sizeGroup = sizeGroup
             )
         }
 
@@ -185,7 +197,8 @@ fun LazyListScope.recentActivities(
 private fun MediumCard(
     label: String,
     value: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sizeGroup: ResponsiveFontSizeGroup? = null
 ) {
     Card(modifier) {
         Column(
@@ -199,10 +212,11 @@ private fun MediumCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Text(
-                value,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.secondary
+            ResponsiveAmountText(
+                text = value,
+                baseStyle = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.secondary,
+                group = sizeGroup
             )
         }
     }
@@ -212,7 +226,8 @@ private fun MediumCard(
 private fun EarnedAndSpentCard(
     income: String,
     expense: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sizeGroup: ResponsiveFontSizeGroup? = null
 ) {
     Row(
         modifier = modifier,
@@ -221,13 +236,15 @@ private fun EarnedAndSpentCard(
         MediumCard(
             stringResource(R.string.earned_this_month),
             income,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            sizeGroup = sizeGroup
         )
 
         MediumCard(
             stringResource(R.string.spent_this_month),
             expense,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            sizeGroup = sizeGroup
         )
     }
 }
@@ -249,10 +266,10 @@ private fun TotalBalanceCard(
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            Text(
-                totalBalance,
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary
+            ResponsiveAmountText(
+                text = totalBalance,
+                baseStyle = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }

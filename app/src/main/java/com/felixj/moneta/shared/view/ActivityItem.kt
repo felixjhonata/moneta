@@ -25,7 +25,8 @@ import com.felixj.moneta.shared.model.ActivityItemUiModel
 fun ActivityItem(
     uiModel: ActivityItemUiModel,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sizeGroup: ResponsiveFontSizeGroup? = null
 ) {
     Row(
         modifier = modifier.clickable(
@@ -65,11 +66,12 @@ fun ActivityItem(
             )
         }
 
-        Text(
-            uiModel.amount.asString(),
-            style = MaterialTheme.typography.titleMedium,
+        ResponsiveAmountText(
+            text = uiModel.amount.asString(),
+            baseStyle = MaterialTheme.typography.titleMedium,
             color = if (uiModel.isExpense) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.primary,
+            group = sizeGroup
         )
     }
 }
