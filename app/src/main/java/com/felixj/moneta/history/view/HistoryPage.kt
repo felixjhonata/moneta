@@ -37,6 +37,7 @@ import com.felixj.moneta.shared.util.navigateTo
 import com.felixj.moneta.shared.view.ActivityItem
 import com.felixj.moneta.shared.view.BottomNavigationBar
 import com.felixj.moneta.shared.view.BottomNavigationBarDestination
+import com.felixj.moneta.shared.view.rememberResponsiveFontSizeGroup
 import com.felixj.moneta.ui.theme.MonetaTheme
 
 @Composable
@@ -93,6 +94,9 @@ private fun HistoryPageContent(
             )
         }
     ) { innerPadding ->
+        val activityGroup =
+            rememberResponsiveFontSizeGroup(MaterialTheme.typography.titleMedium.fontSize)
+
         LazyColumn(
             contentPadding = innerPadding,
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -138,7 +142,8 @@ private fun HistoryPageContent(
                                         HistoryPageUserEvent.ActivityItemClick(item.itemUiModel.activityId)
                                     )
                                 },
-                                modifier = Modifier.padding(horizontal = 24.dp)
+                                modifier = Modifier.padding(horizontal = 24.dp),
+                                sizeGroup = activityGroup
                             )
                         }
                     }
