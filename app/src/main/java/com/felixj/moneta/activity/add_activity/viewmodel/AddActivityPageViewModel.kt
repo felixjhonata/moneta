@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +26,15 @@ class AddActivityPageViewModel @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val activityRepository: ActivityRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(AddActivityPageUiState())
+    private val _uiState = MutableStateFlow(
+        run {
+            val now = Calendar.getInstance()
+            AddActivityPageUiState(
+                date = DateUtil.currentDateInput(now),
+                time = DateUtil.currentTimeInput(now)
+            )
+        }
+    )
     val uiState = _uiState.asStateFlow()
 
     private val _uiEvent = MutableSharedFlow<AddActivityPageUiEvent>()

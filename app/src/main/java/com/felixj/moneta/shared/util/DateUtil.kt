@@ -104,6 +104,18 @@ object DateUtil {
         }.format(parsed)
     }
 
+    fun currentDateInput(now: Calendar = Calendar.getInstance()): String {
+        return SimpleDateFormat("ddMMyyyy", Locale.US).apply {
+            timeZone = now.timeZone
+        }.format(now.time)
+    }
+
+    fun currentTimeInput(now: Calendar = Calendar.getInstance()): String {
+        return SimpleDateFormat("HHmm", Locale.US).apply {
+            timeZone = now.timeZone
+        }.format(now.time)
+    }
+
     private fun parseIsoUtcDateTime(dateString: String): Date? {
         val trimmed = dateString.trim()
         if (!trimmed.contains("T")) return null

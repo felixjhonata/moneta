@@ -8,6 +8,7 @@ import com.felixj.moneta.shared.repository.CategoryRepository
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.Category
 import com.felixj.moneta.shared.room.entity.CategoryType
+import com.felixj.moneta.shared.util.DateUtil
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -99,8 +100,19 @@ class AddActivityPageViewModelTest {
     }
 
     @Test
+    fun initialState_prefillsCurrentDateAndTime() = runTest {
+        val viewModel = AddActivityPageViewModel(categoryRepository, activityRepository)
+
+        val state = viewModel.uiState.value
+        assertTrue(DateUtil.isValidDateInput(state.date))
+        assertTrue(DateUtil.isValidTimeInput(state.time))
+    }
+
+    @Test
     fun submit_withEmptyFields_setsErrorsAndDoesNotInsert() = runTest {
         val viewModel = AddActivityPageViewModel(categoryRepository, activityRepository)
+        viewModel.onUserEvent(AddActivityPageUserEvent.UpdateDate(""))
+        viewModel.onUserEvent(AddActivityPageUserEvent.UpdateTime(""))
         viewModel.onUserEvent(AddActivityPageUserEvent.Submit)
 
         val state = viewModel.uiState.value
