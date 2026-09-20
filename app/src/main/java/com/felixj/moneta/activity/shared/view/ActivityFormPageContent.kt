@@ -52,6 +52,9 @@ import com.felixj.moneta.shared.util.rememberDateInputVisualTransformation
 import com.felixj.moneta.shared.util.rememberTimeInputVisualTransformation
 import com.felixj.moneta.shared.view.CategoryTypeSelector
 import com.felixj.moneta.shared.view.PageHeader
+import com.felixj.moneta.shared.view.ResponsiveAmountText
+import com.felixj.moneta.shared.view.ResponsiveFontSizeGroup
+import com.felixj.moneta.shared.view.rememberResponsiveFontSizeGroup
 import com.felixj.moneta.ui.theme.MonetaTheme
 import java.util.Calendar
 import java.util.Locale
@@ -68,6 +71,9 @@ fun ActivityFormPageContent(
     modifier: Modifier = Modifier
 ) {
     Scaffold(modifier) { innerPadding ->
+        val categoryLabelGroup =
+            rememberResponsiveFontSizeGroup(MaterialTheme.typography.bodyMedium.fontSize)
+
         LazyColumn(contentPadding = innerPadding) {
             item {
                 PageHeader(
@@ -160,7 +166,8 @@ fun ActivityFormPageContent(
                                                 )
                                             )
                                         },
-                                        Modifier.weight(1f)
+                                        Modifier.weight(1f),
+                                        categoryLabelGroup
                                     )
                                 }
 
@@ -388,7 +395,8 @@ private fun CategoryCard(
     category: AddActivityCategoryUiModel,
     selected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sizeGroup: ResponsiveFontSizeGroup? = null
 ) {
     Column(
         modifier = modifier,
@@ -413,10 +421,11 @@ private fun CategoryCard(
             )
         }
 
-        Text(
-            category.label,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
+        ResponsiveAmountText(
+            text = category.label,
+            baseStyle = MaterialTheme.typography.bodyMedium,
+            color = Color.Unspecified,
+            group = sizeGroup
         )
     }
 }

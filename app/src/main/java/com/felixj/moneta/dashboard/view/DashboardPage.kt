@@ -269,7 +269,7 @@ private fun TotalBalanceCard(
             ResponsiveAmountText(
                 text = totalBalance,
                 baseStyle = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

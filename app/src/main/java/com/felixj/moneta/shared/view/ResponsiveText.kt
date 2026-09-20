@@ -15,10 +15,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.felixj.moneta.ui.theme.MonetaTheme
+
+private const val MIN_FONT_SIZE_SP = 12f
 
 @Stable
 class ResponsiveFontSizeGroup(initial: TextUnit) {
@@ -34,11 +37,11 @@ class ResponsiveFontSizeGroup(initial: TextUnit) {
 fun rememberResponsiveFontSizeGroup(baseFontSize: TextUnit) =
     remember(baseFontSize) { ResponsiveFontSizeGroup(baseFontSize) }
 
-private fun stepsFor(base: TextUnit, min: TextUnit = 12.sp): List<TextUnit> {
+private fun stepsFor(base: TextUnit): List<TextUnit> {
     if (base == TextUnit.Unspecified) return listOf(16.sp, 14.sp, 12.sp)
     return generateSequence(base) { prev ->
         val next = prev.value - 2
-        if (next >= min.value) next.sp else null
+        if (next >= MIN_FONT_SIZE_SP) next.sp else null
     }.toList()
 }
 
@@ -82,6 +85,7 @@ fun ResponsiveAmountText(
             style = baseStyle.copy(fontSize = fontSize),
             color = color,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
