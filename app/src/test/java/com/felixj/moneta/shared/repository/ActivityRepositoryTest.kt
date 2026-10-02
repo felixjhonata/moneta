@@ -5,11 +5,15 @@ import com.felixj.moneta.shared.room.dao.ActivityDao
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
+import androidx.paging.PagingSource
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Test
 
 class ActivityRepositoryTest {
@@ -62,6 +66,19 @@ class ActivityRepositoryTest {
         coVerify(exactly = 1) { mockDao.getActivityById(5) }
         assertEquals(5, result?.activity?.id)
         assertEquals("Electricity Bills", result?.activity?.name)
+    }
+
+    @Test
+    fun getActivitiesPaged_delegatesToDao() {
+        val mockDao = mockk<ActivityDao>()
+        val pagingSource = mockk<PagingSource<Int, ActivityWithCategoryIcon>>()
+        every { mockDao.getActivitiesPaged() } returns pagingSource
+        val repository = ActivityRepository(mockDao)
+
+        val result = repository.getActivitiesPaged()
+
+        verify(exactly = 1) { mockDao.getActivitiesPaged() }
+        assertSame(pagingSource, result)
     }
 
     @Test
