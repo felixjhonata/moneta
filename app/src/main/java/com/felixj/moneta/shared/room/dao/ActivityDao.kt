@@ -22,7 +22,7 @@ interface ActivityDao {
             category.type AS category_type
         FROM activity
         INNER JOIN category ON activity.category_id = category.id
-        ORDER BY activity.date DESC
+        ORDER BY activity.date DESC, activity.id DESC
         LIMIT :limit
     """)
     suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon>
@@ -34,7 +34,7 @@ interface ActivityDao {
             category.type AS category_type
         FROM activity
         INNER JOIN category ON activity.category_id = category.id
-        ORDER BY activity.date DESC
+        ORDER BY activity.date DESC, activity.id DESC
     """)
     fun getActivitiesPaged(): PagingSource<Int, ActivityWithCategoryIcon>
 
