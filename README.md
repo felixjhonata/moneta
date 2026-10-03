@@ -22,7 +22,7 @@ A lightweight, offline-first personal finance tracker for Android. Record income
 - **Dashboard** — instantly see earned, spent, and current balance for the month, plus recent activities.
 - **Activity tracking** — add, edit, view, and delete income/expense entries with amount, category, date, time, and an optional note.
 - **Categories** — organize transactions into expense or income categories, each with its own icon; create, edit, and delete them.
-- **History** — browse your past activities in a single scrollable list.
+- **History** — browse your past activities in a paginated scrollable list (Paging 3, 20 items per page).
 - **Multi-currency** — switch between **IDR** and **USD** with proper currency symbol and formatting.
 - **Theming** — follow the system theme or force dark mode.
 - **100% offline** — all data is stored locally on-device (Room); no account or internet required.
@@ -38,8 +38,9 @@ A lightweight, offline-first personal finance tracker for Android. Record income
 | Architecture | MVVM with unidirectional data flow (`UiState` / `UiEvent` / `UserEvent` per feature) |
 | DI | Hilt (KSP) |
 | Persistence | Room 3 (KSP) with KSP schema generation |
+| Paging | Paging 3 (`paging-compose`, Room `PagingSource`) |
 | Serialization | kotlinx.serialization |
-| Testing | JUnit 4, MockK, kotlinx-coroutines-test, Compose UI test |
+| Testing | JUnit 4, MockK, kotlinx-coroutines-test, Compose UI test, Paging testing |
 
 - **Kotlin** 2.4.20 · **AGP** 9.4.1 · **Gradle** 9.7.1 · **Compose BOM** 2026.09.00 · **KSP** 2.3.6
 - `minSdk` **24** · `compileSdk` / `targetSdk` **37** · Java 11 bytecode
@@ -50,7 +51,7 @@ A lightweight, offline-first personal finance tracker for Android. Record income
 Prebuilt APKs are not published yet. Until then, [build from source](#build--setup-instructions).
 
 <!-- When available, add links here:
-- [GitHub Releases](https://github.com/<your-username>/Moneta/releases)
+- [GitHub Releases](https://github.com/felixjhonata/moneta/releases)
 - [F-Droid](https://f-droid.org/packages/com.felixj.moneta)
 - [Google Play](https://play.google.com/store/apps/details?id=com.felixj.moneta)
 -->
@@ -67,8 +68,8 @@ Prebuilt APKs are not published yet. Until then, [build from source](#build--set
 
 ```bash
 # Clone & build a debug APK
-git clone https://github.com/<your-username>/Moneta.git
-cd Moneta
+git clone https://github.com/felixjhonata/moneta.git
+cd moneta
 ./gradlew assembleDebug
 ```
 
@@ -150,12 +151,17 @@ limitations under the License.
 
 All trademarks and brand references belong to their respective owners.
 
+## Privacy
+
+Moneta collects no personal data and works fully offline. See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
+
 ## Acknowledgments & Credits
 
 - [Jetpack Compose](https://developer.android.com/jetpack/compose) & [Material 3](https://m3.material.io/) — UI toolkit
 - [Navigation 3](https://developer.android.com/guide/navigation/navigation3) — type-safe in-app navigation
 - [Hilt](https://dagger.dev/hilt/) — dependency injection
 - [Room (3)](https://developer.android.com/kotlin/room) — local persistence
+- [Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) — paginated History list
 - [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) — type-safe route serialization
-- [MockK](https://mockk.io/) & [kotlinx-coroutines-test](https://github.com/Kotlin/kotlinx.coroutines) — testing
+- [MockK](https://mockk.io/) & [kotlinx-coroutines-test](https://github.com/Kotlin/kotlinx.coroutines) & [Paging testing](https://developer.android.com/topic/libraries/architecture/paging/test) — testing
 - [Material Symbols](https://fonts.google.com/icons) — in-app icons
