@@ -1,15 +1,19 @@
 package com.felixj.moneta.shared.room.dao
 
 import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.Update
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
+import androidx.paging.PagingSource
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
 
 @Dao
+@DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 interface ActivityDao {
     @Query("""
         SELECT 
@@ -18,10 +22,21 @@ interface ActivityDao {
             category.type AS category_type
         FROM activity
         INNER JOIN category ON activity.category_id = category.id
-        ORDER BY activity.date DESC
+        ORDER BY activity.date DESC, activity.id DESC
         LIMIT :limit
     """)
     suspend fun getActivities(limit: Int): List<ActivityWithCategoryIcon>
+
+    @Query("""
+        SELECT 
+            activity.*, 
+            category.icon AS category_icon,
+            category.type AS category_type
+        FROM activity
+        INNER JOIN category ON activity.category_id = category.id
+        ORDER BY activity.date DESC, activity.id DESC
+    """)
+    fun getActivitiesPaged(): PagingSource<Int, ActivityWithCategoryIcon>
 
     @Query("""
         SELECT 

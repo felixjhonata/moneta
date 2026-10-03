@@ -17,6 +17,7 @@ hilt = "2.60.1"
 ksp = "2.3.6"
 hiltLifecycleViewmodelCompose = "1.4.0"
 room3Runtime = "3.0.3"
+paging = "3.5.1"
 kotlinxCoroutines = "1.11.0"
 mockk = "1.14.11"
 
@@ -26,6 +27,10 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3Runtime" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3Runtime" }
+androidx-room3-paging = { module = "androidx.room3:room3-paging", version.ref = "room3Runtime" }
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "paging" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
+androidx-paging-testing = { module = "androidx.paging:paging-testing", version.ref = "paging" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

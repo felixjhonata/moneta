@@ -1,5 +1,8 @@
 package com.felixj.moneta.history.viewmodel
 
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import androidx.paging.testing.asSnapshot
 import com.felixj.moneta.R
 import com.felixj.moneta.history.model.HistoryListItemUiModel
 import com.felixj.moneta.history.model.HistoryPageUiEvent
@@ -10,12 +13,8 @@ import com.felixj.moneta.shared.repository.ActivityRepository
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
-import com.felixj.moneta.shared.util.DateUtil
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -28,84 +27,111 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
+import kotlin.math.max
+import kotlin.math.min
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HistoryPageViewModelTest {
 
     private val repository = mockk<ActivityRepository>()
 
+    private class FakePagingSource(
+        private val data: List<ActivityWithCategoryIcon>
+    ) : PagingSource<Int, ActivityWithCategoryIcon>() {
+        override fun getRefreshKey(state: PagingState<Int, ActivityWithCategoryIcon>): Int? = null
+
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ActivityWithCategoryIcon> {
+            val key = params.key ?: 0
+            val start = key.coerceIn(0, data.size)
+            val end = min(start + params.loadSize, data.size)
+            val page = if (start >= end) emptyList() else data.subList(start, end)
+            return LoadResult.Page(
+                data = page,
+                prevKey = if (key == 0) null else max(0, key - params.loadSize),
+                nextKey = if (end >= data.size) null else end
+            )
+        }
+    }
+
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        mockkObject(DateUtil)
-        every { DateUtil.formatForDisplay(any(), any()) } answers { callOriginal() }
-        every { DateUtil.formatForDisplay(any()) } answers { callOriginal() }
     }
 
     @After
     fun tearDown() {
-        unmockkObject(DateUtil)
         Dispatchers.resetMain()
     }
 
+    private fun isoNow(): String = isoFor(Calendar.getInstance())
+
+    private fun isoYesterday(): String =
+        isoFor(Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) })
+
+    private fun isoFor(cal: Calendar): String =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(cal.time)
+
     @Test
-    fun loadData_withEmptyDatabase_setsEmptyList() = runTest {
-        coEvery { repository.getActivities() } returns emptyList()
+    fun pagedHistory_withEmptyDatabase_emitsEmptyList() = runTest {
+        every { repository.getActivitiesPaged() } answers { FakePagingSource(emptyList()) }
 
         val viewModel = HistoryPageViewModel(repository)
-        viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
+        val items = viewModel.pagedHistory.asSnapshot()
 
-        val items = viewModel.uiState.value.historyListItems
         assertTrue(items.isEmpty())
     }
 
     @Test
-    fun loadData_withActivities_groupsByDateAndInsertsSingleHeaderPerDate() = runTest {
+    fun pagedHistory_withActivities_groupsByDateAndInsertsSingleHeaderPerDate() = runTest {
+        val todayIso = isoNow()
+        val yesterdayIso = isoYesterday()
+        // ponytail: fixed old date at noon UTC stays on the same calendar day in every timezone
+        val olderIso1 = "2020-01-01T12:00:00Z"
+        val olderIso2 = "2020-01-01T09:00:00Z"
         val sampleActivities = listOf(
             ActivityWithCategoryIcon(
-                Activity(1, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ""),
+                Activity(1, 1, "Lunch Today", todayIso, 50000, ""),
                 R.drawable.baseline_lightbulb_24,
                 CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(2, 4, "Salary Today", "2026-09-15T08:00:00Z", 5000000, ""),
+                Activity(2, 4, "Salary Today", todayIso, 5000000, ""),
                 R.drawable.baseline_account_balance_wallet_24,
                 CategoryType.INCOME
             ),
             ActivityWithCategoryIcon(
-                Activity(3, 1, "Dinner Yesterday", "2026-09-14T19:00:00Z", 100000, ""),
+                Activity(3, 1, "Dinner Yesterday", yesterdayIso, 100000, ""),
                 R.drawable.baseline_lightbulb_24,
                 CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(4, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ""),
+                Activity(4, 1, "Book Older", olderIso1, 80000, ""),
                 R.drawable.baseline_lightbulb_24,
                 CategoryType.EXPENSE
             ),
             ActivityWithCategoryIcon(
-                Activity(5, 1, "Coffee Older", "2026-08-04T09:00:00Z", 35000, ""),
+                Activity(5, 1, "Coffee Older", olderIso2, 35000, ""),
                 R.drawable.baseline_lightbulb_24,
                 CategoryType.EXPENSE
             )
         )
-        coEvery { repository.getActivities() } returns sampleActivities
-
-        every { DateUtil.formatRelativeDate(eq("2026-09-15T12:00:00Z"), any(), any()) } returns "Today"
-        every { DateUtil.formatRelativeDate(eq("2026-09-15T08:00:00Z"), any(), any()) } returns "Today"
-        every { DateUtil.formatRelativeDate(eq("2026-09-14T19:00:00Z"), any(), any()) } returns "Yesterday"
-        every { DateUtil.formatRelativeDate(eq("2026-08-04T15:00:00Z"), any(), any()) } returns "4 August 2026"
-        every { DateUtil.formatRelativeDate(eq("2026-08-04T09:00:00Z"), any(), any()) } returns "4 August 2026"
+        every { repository.getActivitiesPaged() } answers { FakePagingSource(sampleActivities) }
 
         val viewModel = HistoryPageViewModel(repository)
-        viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
+        val items = viewModel.pagedHistory.asSnapshot()
 
-        val items = viewModel.uiState.value.historyListItems
         assertEquals(8, items.size)
 
-        // Date headers
+        // Date headers (real DateUtil: Today / Yesterday / 1 January 2020)
         assertEquals(HistoryListItemUiModel.Date("Today"), items[0])
         assertEquals(HistoryListItemUiModel.Date("Yesterday"), items[3])
-        assertEquals(HistoryListItemUiModel.Date("4 August 2026"), items[5])
+        assertEquals(HistoryListItemUiModel.Date("1 January 2020"), items[5])
 
         // Activity item 1 (Expense)
         val lunchItem = items[1] as HistoryListItemUiModel.ActivityItem
@@ -133,33 +159,26 @@ class HistoryPageViewModelTest {
     }
 
     @Test
-    fun loadData_withUnsortedActivities_sortsChronologicallyDescending() = runTest {
-        val unsortedActivities = listOf(
+    fun pagedHistory_withSameDateAcrossPageBoundaries_emitsSingleHeader() = runTest {
+        // 25 same-day items fit in initial load; insertSeparators dedupes headers
+        // across pages by comparing before/after, so one header proves the logic.
+        val todayIso = isoNow()
+        val manySameDay = (1..25).map { id ->
             ActivityWithCategoryIcon(
-                Activity(1, 1, "Book Older", "2026-08-04T15:00:00Z", 80000, ""),
-                R.drawable.baseline_lightbulb_24,
-                CategoryType.EXPENSE
-            ),
-            ActivityWithCategoryIcon(
-                Activity(2, 1, "Lunch Today", "2026-09-15T12:00:00Z", 50000, ""),
+                Activity(id, 1, "Item $id", todayIso, 1000L + id, ""),
                 R.drawable.baseline_lightbulb_24,
                 CategoryType.EXPENSE
             )
-        )
-        coEvery { repository.getActivities() } returns unsortedActivities
-
-        every { DateUtil.formatRelativeDate(eq("2026-09-15T12:00:00Z"), any(), any()) } returns "Today"
-        every { DateUtil.formatRelativeDate(eq("2026-08-04T15:00:00Z"), any(), any()) } returns "4 August 2026"
+        }
+        every { repository.getActivitiesPaged() } answers { FakePagingSource(manySameDay) }
 
         val viewModel = HistoryPageViewModel(repository)
-        viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
+        val items = viewModel.pagedHistory.asSnapshot()
 
-        val items = viewModel.uiState.value.historyListItems
-        assertEquals(4, items.size)
+        // 1 header + 25 activities, header must not duplicate
+        assertEquals(26, items.size)
         assertEquals(HistoryListItemUiModel.Date("Today"), items[0])
-        assertEquals("Lunch Today", ((items[1] as HistoryListItemUiModel.ActivityItem).itemUiModel.activityLabel as UiText.DynamicString).value)
-        assertEquals(HistoryListItemUiModel.Date("4 August 2026"), items[2])
-        assertEquals("Book Older", ((items[3] as HistoryListItemUiModel.ActivityItem).itemUiModel.activityLabel as UiText.DynamicString).value)
+        assertEquals(1, items.filterIsInstance<HistoryListItemUiModel.Date>().size)
     }
 
     @Test

@@ -4,12 +4,15 @@ import com.felixj.moneta.shared.room.dao.ActivityDao
 import com.felixj.moneta.shared.room.entity.Activity
 import com.felixj.moneta.shared.room.entity.CategoryType
 import com.felixj.moneta.shared.room.entity.ActivityWithCategoryIcon
+import androidx.paging.PagingSource
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ActivityRepository @Inject constructor(private val activityDao: ActivityDao) {
     suspend fun getActivities(limit: Int = -1): List<ActivityWithCategoryIcon> = activityDao.getActivities(limit)
+
+    fun getActivitiesPaged(): PagingSource<Int, ActivityWithCategoryIcon> = activityDao.getActivitiesPaged()
 
     suspend fun getActivity(id: Int): ActivityWithCategoryIcon? = activityDao.getActivityById(id)
 
