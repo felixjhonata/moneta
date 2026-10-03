@@ -70,4 +70,26 @@ class CategoryRepositoryTest {
 
         coVerify(exactly = 1) { mockDao.insertAll(category) }
     }
+
+    @Test
+    fun deleteAllCategories_delegatesToDao() = runBlocking {
+        val mockDao = mockk<CategoryDao>()
+        coEvery { mockDao.deleteAll() } returns Unit
+        val repository = CategoryRepository(mockDao)
+
+        repository.deleteAllCategories()
+
+        coVerify(exactly = 1) { mockDao.deleteAll() }
+    }
+
+    @Test
+    fun insertCategories_batchesToDao() = runBlocking {
+        val mockDao = mockk<CategoryDao>()
+        coEvery { mockDao.insertAll() } returns Unit
+        val repository = CategoryRepository(mockDao)
+
+        repository.insertCategories(emptyList())
+
+        coVerify(exactly = 1) { mockDao.insertAll() }
+    }
 }
