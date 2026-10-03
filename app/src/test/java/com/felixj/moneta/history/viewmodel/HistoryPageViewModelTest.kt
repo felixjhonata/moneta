@@ -182,17 +182,6 @@ class HistoryPageViewModelTest {
     }
 
     @Test
-    fun onUserEvent_loadData_isNoOp() = runTest {
-        every { repository.getActivitiesPaged() } answers { FakePagingSource(emptyList()) }
-
-        val viewModel = HistoryPageViewModel(repository)
-        viewModel.onUserEvent(HistoryPageUserEvent.LoadData)
-
-        val items = viewModel.pagedHistory.asSnapshot()
-        assertTrue(items.isEmpty())
-    }
-
-    @Test
     fun onUserEvent_navigateTo_emitsNavigationEvent() = runTest {
         val viewModel = HistoryPageViewModel(repository)
 

@@ -46,8 +46,6 @@ class HistoryPageViewModel @Inject constructor(
 
     fun onUserEvent(userEvent: HistoryPageUserEvent) {
         when (userEvent) {
-            // Deprecated: paging loads automatically, kept for backward compatibility.
-            HistoryPageUserEvent.LoadData -> Unit
             is HistoryPageUserEvent.NavigateTo -> {
                 viewModelScope.launch {
                     _uiEvent.emit(
