@@ -2,6 +2,7 @@ package com.felixj.moneta.settings.view
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -93,8 +94,6 @@ fun SettingsPage(
                     exportLauncher.launch(uiEvent.fileName)
                 }
                 SettingsPageUiEvent.RequestImportFile -> {
-                    // ponytail: providers label .csv inconsistently; the parser
-                    // still rejects non-backups with a friendly error.
                     importLauncher.launch(
                         arrayOf(
                             "text/csv",
@@ -117,6 +116,7 @@ fun SettingsPage(
     )
 }
 
+@VisibleForTesting
 @Composable
 fun SettingsPageContent(
     uiState: SettingsPageUiState,
