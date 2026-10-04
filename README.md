@@ -48,7 +48,15 @@ A lightweight, offline-first personal finance tracker for Android. Record income
 
 ## Download / Installation
 
-Prebuilt APKs are not published yet. Until then, [build from source](#build--setup-instructions).
+### Closed testing (Google Play)
+
+1. Join the tester group: [moneta-testers-01](https://groups.google.com/g/moneta-testers-01) — use the same Google account you use on the Play Store, then wait a few minutes for access to propagate.
+2. Install the app: [Moneta on Google Play](https://play.google.com/store/apps/details?id=com.felixj.moneta) — open the link on your device while signed in with that same account, then tap **Install**.
+3. Stay in the group to keep receiving test updates. Leaving the group removes your access.
+
+> If Play shows "not available" or "item not found", check you're signed in with the joined account, wait a bit longer, then reopen the link.
+
+Prebuilt APKs are available on [GitHub Releases](https://github.com/felixjhonata/moneta/releases). Alternatively, [build from source](#build--setup-instructions).
 
 <!-- When available, add links here:
 - [GitHub Releases](https://github.com/felixjhonata/moneta/releases)
