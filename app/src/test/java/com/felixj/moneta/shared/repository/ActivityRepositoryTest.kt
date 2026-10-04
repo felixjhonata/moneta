@@ -108,4 +108,38 @@ class ActivityRepositoryTest {
         }
         assertEquals(5000000L, result)
     }
+
+    @Test
+    fun getActivityCount_delegatesToDao() = runTest {
+        val mockDao = mockk<ActivityDao>()
+        coEvery { mockDao.getActivityCount() } returns 42
+        val repository = ActivityRepository(mockDao)
+
+        val result = repository.getActivityCount()
+
+        coVerify(exactly = 1) { mockDao.getActivityCount() }
+        assertEquals(42, result)
+    }
+
+    @Test
+    fun deleteAllActivities_delegatesToDao() = runTest {
+        val mockDao = mockk<ActivityDao>()
+        coEvery { mockDao.deleteAll() } returns Unit
+        val repository = ActivityRepository(mockDao)
+
+        repository.deleteAllActivities()
+
+        coVerify(exactly = 1) { mockDao.deleteAll() }
+    }
+
+    @Test
+    fun insertActivities_batchesToDao() = runTest {
+        val mockDao = mockk<ActivityDao>()
+        coEvery { mockDao.insertAll() } returns Unit
+        val repository = ActivityRepository(mockDao)
+
+        repository.insertActivities(emptyList())
+
+        coVerify(exactly = 1) { mockDao.insertAll() }
+    }
 }

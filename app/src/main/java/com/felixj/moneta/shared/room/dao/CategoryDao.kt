@@ -18,6 +18,9 @@ interface CategoryDao {
     @Query("SELECT COALESCE(MAX(id), 0) + 1 FROM category")
     suspend fun getNextCategoryId(): Int
 
+    @Query("DELETE FROM category")
+    suspend fun deleteAll()
+
     @Insert
     suspend fun insertAll(vararg categories: Category)
 

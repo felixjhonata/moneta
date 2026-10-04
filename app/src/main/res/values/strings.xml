@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Moneta</string>
     <string name="dashboard">Dashboard</string>
     <string name="history">History</string>
@@ -48,4 +48,25 @@
     <string name="category_detail">Category Detail</string>
     <string name="edit_category">Edit Category</string>
     <string name="type">Type</string>
+    <string name="backup">Backup</string>
+    <string name="export">Export</string>
+    <string name="import_button">Import</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="backup_saved" tools:ignore="PluralsCandidate">Backup saved with %1$d activities</string>
+    <string name="backup_export_failed">Couldn\'t save the backup. Please try again.</string>
+    <string name="backup_read_failed">Couldn\'t read that file. Please try again.</string>
+    <string name="backup_wrong_file">That file doesn\'t look like a Moneta backup. No data was changed.</string>
+    <string name="backup_import_done" tools:ignore="PluralsCandidate">Done: %1$d added, %2$d skipped</string>
+    <string name="backup_import_failed">Something went wrong. Your current data was not changed.</string>
+    <string name="backup_preview_title">Import backup?</string>
+    <string name="backup_preview" tools:ignore="PluralsCandidate">Found %1$d records in %2$s, using %3$d categories.</string>
+    <string name="backup_keep_and_add">Keep my data and add on top</string>
+    <string name="backup_delete_first">Delete everything first</string>
+    <string name="backup_duplicate_warning">Importing the same file twice will create copies.</string>
+    <string name="backup_replace_title">Delete everything?</string>
+    <string name="backup_replace_confirm" tools:ignore="PluralsCandidate">This will delete your current %1$d records. This cannot be undone.</string>
+    <string name="backup_currency_unknown">unknown currency</string>
+    <string name="backup_currency_title">Switch currency?</string>
+    <string name="backup_currency_switch">This backup was made in %1$s. Your phone is set to %2$s. Switch to %1$s to show it correctly?</string>
 </resources>

@@ -19,6 +19,7 @@ All data entered into Moneta (such as activities/transactions with name, date, a
 
 * The Service Provider does not have access to your local data or financial logs.
 * You maintain total ownership and control over your data at all times.
+* If you use the backup feature, the exported CSV copy is stored wherever you choose to save it (e.g. your Downloads folder). That copy lives outside the Application's private storage and is managed by you.
 * Note: the Application leaves Android system backup enabled (`allowBackup="true"`), so if you have device backup turned on, the operating system or your backup provider (e.g., Google) may copy the Application's private data off-device according to your device settings. This is controlled by you and the OS, not by the Service Provider.
 
 ---
@@ -29,7 +30,7 @@ Moneta does not integrate with third-party analytics SDKs, advertising networks,
 ---
 
 ### 4. Device Permissions
-The Application requests no system permissions. It has no import/export feature and does not access shared storage, photos, contacts, or location.
+The Application requests no system permissions. Its backup feature uses Android's built-in file picker (Storage Access Framework) to export or import a CSV copy: no extra permission is needed, files are only read from or written to the location you pick, and everything stays offline. The Application does not access photos, contacts, or location.
 
 ---
 
@@ -41,7 +42,7 @@ Because Moneta does not collect any personal data from any user, it does not kno
 ### 6. Data Deletion and Control
 Since all data is stored locally on your device:
 * You can delete your data at any time by clearing the Application's storage in your device settings or deleting records inside the app.
-* Uninstalling the Application permanently removes all locally stored data created by the app from the device. Copies held by the OS backup service (if you had device backup enabled) are subject to that service's own retention policy.
+* Uninstalling the Application permanently removes all locally stored data created by the app from the device. Copies held by the OS backup service (if you had device backup enabled) are subject to that service's own retention policy. CSV backup files you saved yourself remain where you put them until you delete them.
 
 ---
 

@@ -67,6 +67,12 @@ interface ActivityDao {
     @Query("SELECT COALESCE(MAX(id), 0) + 1 FROM activity")
     suspend fun getNextActivityId(): Int
 
+    @Query("SELECT COUNT(*) FROM activity")
+    suspend fun getActivityCount(): Int
+
+    @Query("DELETE FROM activity")
+    suspend fun deleteAll()
+
     @Insert
     suspend fun insertAll(vararg activities: Activity)
 
